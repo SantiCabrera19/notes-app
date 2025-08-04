@@ -142,7 +142,7 @@ function App() {
   const selectedNote = findSelectedNote(selectedNoteId, notes, activeNotes, archivedNotes);
   
   // Get all notes for dashboard
-  const _allNotes = getAllNotes(activeNotes, archivedNotes);
+  // const _allNotes = getAllNotes(activeNotes, archivedNotes);
 
   return (
     <AnimatedBackground variant="gradient">

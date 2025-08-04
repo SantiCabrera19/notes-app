@@ -22,21 +22,13 @@ const variants = {
     x: 0,
     y: 0,
     scale: 1,
-    transition: {
-      duration: 0.3,
-      ease: "easeOut",
-    },
   },
-  exit: (direction: string) => ({
-    opacity: 0,
-    x: direction === 'left' ? -20 : direction === 'right' ? 20 : 0,
-    y: direction === 'up' ? -20 : direction === 'down' ? 20 : 0,
-    scale: 0.95,
-    transition: {
-      duration: 0.2,
-      ease: "easeIn",
-    },
-  }),
+      exit: (direction: string) => ({
+      opacity: 0,
+      x: direction === 'left' ? -20 : direction === 'right' ? 20 : 0,
+      y: direction === 'up' ? -20 : direction === 'down' ? 20 : 0,
+      scale: 0.95,
+    }),
 };
 
 export const AnimatedContainer: React.FC<AnimatedContainerProps> = ({

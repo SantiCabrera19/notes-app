@@ -12,7 +12,6 @@ import {
 import type { Note, Tag as TagType } from '../../services/api';
 import { DashboardSkeleton } from './Skeleton';
 import { 
-  _getAllNotes, 
   getNotesCreatedToday, 
   getNotesWithTags, 
   getRecentNotes, 

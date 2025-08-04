@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Tag, X, ChevronDown } from 'lucide-react';
+import { Search, Tag, ChevronDown } from 'lucide-react';
 import { AnimatedButton } from './ui/AnimatedButton';
 import { SidebarSkeleton } from './ui/Skeleton';
 import { DraggableNoteList } from './ui/DraggableNoteList';
