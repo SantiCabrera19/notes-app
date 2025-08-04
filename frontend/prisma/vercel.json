@@ -1,0 +1,10 @@
+{
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
+  "@prisma/client": {
+    "generate": {
+      "output": "./node_modules/.prisma/client"
+    }
+  }
+} 
