@@ -1,0 +1,279 @@
+import React, { useState, useEffect } from 'react';
+import { TagSelector } from './TagSelector';
+import type { Note, CreateNoteRequest, UpdateNoteRequest, Tag } from '../services/api';
+
+interface NoteEditorProps {
+  note?: Note;
+  isCreating: boolean;
+  onSave: (data: CreateNoteRequest | UpdateNoteRequest) => Promise<void>;
+  onCancel: () => void;
+  onDelete?: (id: string) => Promise<void>;
+  onToggleArchive?: (id: string) => Promise<void>;
+  availableTags: Tag[];
+  onCreateTag?: (name: string) => Promise<Tag>;
+  onSaveSuccess?: () => void;
+}
+
+export const NoteEditor: React.FC<NoteEditorProps> = ({
+  note,
+  isCreating,
+  onSave,
+  onCancel,
+  onDelete,
+  onToggleArchive,
+  availableTags,
+  onCreateTag,
+  onSaveSuccess,
+}) => {
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
+  const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
+  const [isSaving, setIsSaving] = useState(false);
+  const [errors, setErrors] = useState<{ title?: string; content?: string }>({});
+
+  // Cargar datos de la nota si estamos editando
+  useEffect(() => {
+    if (note && !isCreating) {
+      setTitle(note.title);
+      setContent(note.content);
+      setSelectedTags(note.tags || []);
+    } else {
+      setTitle('');
+      setContent('');
+      setSelectedTags([]);
+    }
+    setErrors({});
+  }, [note, isCreating]);
+
+  // Atajos de teclado
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ctrl+S para guardar
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        handleSave();
+      }
+      // Esc para cancelar
+      if (e.key === 'Escape') {
+        onCancel();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [title, content, selectedTags]);
+
+  const validateForm = () => {
+    const newErrors: { title?: string; content?: string } = {};
+
+    if (!title.trim()) {
+      newErrors.title = 'Title is required';
+    }
+
+    if (!content.trim()) {
+      newErrors.content = 'Content is required';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSave = async () => {
+    if (!validateForm()) return;
+
+    setIsSaving(true);
+    try {
+      const data = {
+        title: title.trim(),
+        content: content.trim(),
+        tagIds: selectedTags.map(tag => tag.id),
+      };
+
+      if (isCreating) {
+        await onSave(data);
+        // After creating, redirect to list
+        onSaveSuccess?.();
+      } else if (note) {
+        await onSave(data);
+        // After updating, redirect to list
+        onSaveSuccess?.();
+      }
+    } catch (error) {
+      console.error('Error saving note:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!note || !onDelete) return;
+
+    if (window.confirm('Are you sure you want to delete this note?')) {
+      try {
+        await onDelete(note.id);
+        onSaveSuccess?.();
+      } catch (error) {
+        console.error('Error deleting note:', error);
+      }
+    }
+  };
+
+  const handleToggleArchive = async () => {
+    if (!note || !onToggleArchive) return;
+
+    try {
+      await onToggleArchive(note.id);
+      onSaveSuccess?.();
+    } catch (error) {
+      console.error('Error toggling archive:', error);
+    }
+  };
+
+  return (
+    <div className="h-full flex flex-col">
+      {/* Header */}
+      <div className="p-6 border-b border-gray-800 bg-gray-900">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <h2 className="text-xl font-semibold text-white">
+              {isCreating ? 'Create New Note' : 'Edit Note'}
+            </h2>
+            <span className="text-xs text-gray-500 bg-gray-800 px-2 py-1 rounded">
+              Ctrl+S to save • Esc to cancel
+            </span>
+          </div>
+          <div className="flex items-center space-x-2">
+            {note && onToggleArchive && (
+              <button
+                onClick={handleToggleArchive}
+                className="px-3 py-1 text-sm bg-gray-700 hover:bg-gray-600 text-gray-300 rounded transition-colors flex items-center space-x-1"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                </svg>
+                <span>{note.isArchived ? 'Unarchive' : 'Archive'}</span>
+              </button>
+            )}
+            {note && onDelete && (
+              <button
+                onClick={handleDelete}
+                className="px-3 py-1 text-sm bg-red-600 hover:bg-red-700 text-white rounded transition-colors flex items-center space-x-1"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                <span>Delete</span>
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Form */}
+      <div className="flex-1 p-6 overflow-y-auto">
+        <div className="max-w-4xl mx-auto">
+          {/* Title Input */}
+          <div className="mb-6">
+            <label htmlFor="title" className="block text-sm font-medium text-gray-300 mb-2">
+              Title
+            </label>
+            <input
+              id="title"
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Enter note title..."
+              className={`w-full px-4 py-3 bg-gray-800 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
+                errors.title ? 'border-red-500' : 'border-gray-700'
+              }`}
+            />
+            {errors.title && (
+              <p className="mt-1 text-sm text-red-400 flex items-center space-x-1">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>{errors.title}</span>
+              </p>
+            )}
+          </div>
+
+          {/* Tags Selector */}
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Tags
+            </label>
+            <TagSelector
+              selectedTags={selectedTags}
+              availableTags={availableTags}
+              onTagsChange={setSelectedTags}
+              onCreateTag={onCreateTag}
+              disabled={isSaving}
+            />
+          </div>
+
+          {/* Content Textarea */}
+          <div className="mb-6">
+            <label htmlFor="content" className="block text-sm font-medium text-gray-300 mb-2">
+              Content
+            </label>
+            <textarea
+              id="content"
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder="Write your note content here..."
+              rows={15}
+              className={`w-full px-4 py-3 bg-gray-800 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition-colors ${
+                errors.content ? 'border-red-500' : 'border-gray-700'
+              }`}
+            />
+            {errors.content && (
+              <p className="mt-1 text-sm text-red-400 flex items-center space-x-1">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>{errors.content}</span>
+              </p>
+            )}
+            <div className="mt-2 text-xs text-gray-500">
+              {content.length} characters
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex items-center justify-between pt-6 border-t border-gray-800">
+            <button
+              onClick={onCancel}
+              className="px-6 py-2 text-gray-400 hover:text-white transition-colors flex items-center space-x-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              <span>Cancel</span>
+            </button>
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={handleSave}
+                disabled={isSaving}
+                className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors flex items-center space-x-2"
+              >
+                {isSaving ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    <span>Saving...</span>
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>Save Note</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
