@@ -12,7 +12,7 @@ import { useNotes } from './hooks/useNotes';
 import { useTags } from './hooks/useTags';
 import { useAppState } from './hooks/useAppState';
 import { useNoteActions } from './hooks/useNoteActions';
-import { getCurrentNotes, findSelectedNote, getAllNotes } from './utils/noteUtils';
+import { getCurrentNotes, findSelectedNote } from './utils/noteUtils';
 import type { Note } from './services/api';
 
 function App() {
