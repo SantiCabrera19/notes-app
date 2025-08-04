@@ -66,15 +66,23 @@ setup_backend() {
         npm install
     fi
     
-    # Check if .env exists
+    # Check if .env exists, create from example if not
     if [ ! -f ".env" ]; then
         print_warning "No .env file found in backend directory"
-        print_status "Please create a .env file with your database configuration:"
-        echo "DATABASE_URL=\"your_database_url_here\""
-        echo "DIRECT_URL=\"your_direct_database_url_here\""
-        echo "PORT=3001"
-        echo "NODE_ENV=development"
-        exit 1
+        if [ -f ".env.example" ]; then
+            print_status "Creating .env from .env.example..."
+            cp .env.example .env
+            print_warning "Please edit .env file with your database configuration before running again"
+            print_status "Required variables:"
+            echo "  DATABASE_URL=\"your_database_url_here\""
+            echo "  DIRECT_URL=\"your_direct_database_url_here\""
+            echo "  PORT=3001"
+            echo "  NODE_ENV=development"
+            exit 1
+        else
+            print_error "No .env.example file found. Please create .env manually"
+            exit 1
+        fi
     fi
     
     # Generate Prisma client
@@ -151,11 +159,20 @@ start_app() {
     wait
 }
 
+# Check script permissions
+check_permissions() {
+    if [ ! -x "$0" ]; then
+        print_warning "Script is not executable. Making it executable..."
+        chmod +x "$0"
+    fi
+}
+
 # Main execution
 main() {
     echo "📝 Notes App - Full Stack Runner"
     echo "=================================="
     
+    check_permissions
     check_requirements
     setup_backend
     setup_frontend

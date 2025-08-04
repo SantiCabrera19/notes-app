@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { apiService } from '../services/api';
 import type { Note, CreateNoteRequest, UpdateNoteRequest } from '../services/api';
 
@@ -9,7 +9,7 @@ export const useNotes = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchAllNotes = async () => {
+  const fetchAllNotes = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -20,9 +20,9 @@ export const useNotes = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const fetchActiveNotes = async () => {
+  const fetchActiveNotes = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -33,9 +33,9 @@ export const useNotes = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const fetchArchivedNotes = async () => {
+  const fetchArchivedNotes = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -46,9 +46,9 @@ export const useNotes = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const createNote = async (data: CreateNoteRequest) => {
+  const createNote = useCallback(async (data: CreateNoteRequest) => {
     setLoading(true);
     setError(null);
     try {
@@ -62,9 +62,9 @@ export const useNotes = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const updateNote = async (id: string, data: UpdateNoteRequest) => {
+  const updateNote = useCallback(async (id: string, data: UpdateNoteRequest) => {
     setLoading(true);
     setError(null);
     try {
@@ -79,9 +79,9 @@ export const useNotes = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const deleteNote = async (id: string) => {
+  const deleteNote = useCallback(async (id: string) => {
     setLoading(true);
     setError(null);
     try {
@@ -95,9 +95,9 @@ export const useNotes = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const toggleArchiveNote = async (id: string) => {
+  const toggleArchiveNote = useCallback(async (id: string) => {
     setLoading(true);
     setError(null);
     try {
@@ -119,9 +119,9 @@ export const useNotes = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const searchNotes = async (query: string, archived?: boolean) => {
+  const searchNotes = useCallback(async (query: string, archived?: boolean) => {
     setLoading(true);
     setError(null);
     try {
@@ -133,9 +133,9 @@ export const useNotes = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const getNotesByTags = async (tagIds: string[], archived?: boolean) => {
+  const getNotesByTags = useCallback(async (tagIds: string[], archived?: boolean) => {
     setLoading(true);
     setError(null);
     try {
@@ -147,9 +147,9 @@ export const useNotes = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const clearError = () => setError(null);
+  const clearError = useCallback(() => setError(null), []);
 
   return {
     notes,

@@ -1,18 +1,41 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
 import { NoteEditor } from './components/NoteEditor';
+import { NoteViewer } from './components/NoteViewer';
+import { Dashboard } from './components/ui/Dashboard';
+import { AnimatedBackground } from './components/ui/AnimatedBackground';
+import { SuccessMessage } from './components/ui/SuccessMessage';
+import { LoadingSpinner } from './components/ui/LoadingSpinner';
+import { ErrorMessage } from './components/ui/ErrorMessage';
 import { useNotes } from './hooks/useNotes';
 import { useTags } from './hooks/useTags';
+import { useAppState } from './hooks/useAppState';
+import { useNoteActions } from './hooks/useNoteActions';
+import { getCurrentNotes, findSelectedNote, getAllNotes } from './utils/noteUtils';
 import type { Note } from './services/api';
 
 function App() {
-  const [currentView, setCurrentView] = useState<'active' | 'archived' | 'all'>('active');
-  const [selectedNoteId, setSelectedNoteId] = useState<string | undefined>();
-  const [isCreating, setIsCreating] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
-  const [showSuccessMessage, setShowSuccessMessage] = useState<string | null>(null);
+  const appState = useAppState();
+  const {
+    currentView,
+    selectedNoteId,
+    isCreating,
+    isViewing,
+    searchQuery,
+    selectedTagIds,
+    showSuccessMessage,
+    showDashboard,
+    handleViewChange,
+    handleNewNote,
+    handleNoteSelect,
+    handleGoHome,
+    handleEditNote,
+    handleViewNote,
+    clearSuccessMessage,
+    setSearchQuery,
+    setSelectedTagIds,
+  } = appState;
 
   const {
     notes,
@@ -23,12 +46,6 @@ function App() {
     fetchActiveNotes,
     fetchArchivedNotes,
     fetchAllNotes,
-    createNote,
-    updateNote,
-    deleteNote,
-    toggleArchiveNote,
-    searchNotes,
-    getNotesByTags,
     clearError,
   } = useNotes();
 
@@ -36,9 +53,10 @@ function App() {
     tags,
     loading: tagsLoading,
     error: tagsError,
-    createTag,
     clearError: clearTagsError,
   } = useTags();
+
+  const noteActions = useNoteActions(appState.displaySuccessMessage);
 
   // Cargar notas al montar el componente
   useEffect(() => {
@@ -49,61 +67,29 @@ function App() {
     } else if (currentView === 'all') {
       fetchAllNotes();
     }
-  }, [currentView]);
-
-  const handleViewChange = (view: 'active' | 'archived' | 'all') => {
-    setCurrentView(view);
-    setSelectedNoteId(undefined);
-    setIsCreating(false);
-    setSearchQuery('');
-    setSelectedTagIds([]);
-  };
-
-  const handleNewNote = () => {
-    setIsCreating(true);
-    setSelectedNoteId(undefined);
-  };
-
-  const handleNoteSelect = (noteId: string) => {
-    setSelectedNoteId(noteId);
-    setIsCreating(false);
-  };
+  }, [currentView]); // Solo dependemos de currentView
 
   const handleSaveNote = async (data: any) => {
     try {
       if (isCreating) {
-        const newNote = await createNote(data);
-        setSelectedNoteId(newNote.id);
-        setIsCreating(false);
-        setShowSuccessMessage('Note created successfully! 🎉');
-        setTimeout(() => setShowSuccessMessage(null), 3000);
+        const newNote = await noteActions.handleSaveNote(data, true);
+        if (newNote) {
+          appState.handleNoteSelect(newNote.id);
+          appState.handleGoHome();
+        }
       } else if (selectedNoteId) {
-        await updateNote(selectedNoteId, data);
-        setShowSuccessMessage('Note updated successfully! ✨');
-        setTimeout(() => setShowSuccessMessage(null), 3000);
+        await noteActions.handleSaveNote(data, false, selectedNoteId);
+        appState.handleGoHome();
       }
     } catch (error) {
       console.error('Error saving note:', error);
     }
   };
 
-  const handleSaveSuccess = () => {
-    // Redirect to list view after successful save
-    setSelectedNoteId(undefined);
-    setIsCreating(false);
-  };
-
-  const handleCancelEdit = () => {
-    setIsCreating(false);
-    setSelectedNoteId(undefined);
-  };
-
   const handleDeleteNote = async (id: string) => {
     try {
-      await deleteNote(id);
-      setSelectedNoteId(undefined);
-      setShowSuccessMessage('Note deleted successfully! 🗑️');
-      setTimeout(() => setShowSuccessMessage(null), 3000);
+      await noteActions.handleDeleteNote(id);
+      appState.handleGoHome();
     } catch (error) {
       console.error('Error deleting note:', error);
     }
@@ -111,11 +97,8 @@ function App() {
 
   const handleToggleArchive = async (id: string) => {
     try {
-      const updatedNote = await toggleArchiveNote(id);
-      setSelectedNoteId(undefined);
-      const action = updatedNote.isArchived ? 'archived' : 'unarchived';
-      setShowSuccessMessage(`Note ${action} successfully! 📁`);
-      setTimeout(() => setShowSuccessMessage(null), 3000);
+      await noteActions.handleToggleArchive(id);
+      appState.handleGoHome();
     } catch (error) {
       console.error('Error toggling archive:', error);
     }
@@ -123,7 +106,7 @@ function App() {
 
   const handleCreateTag = async (name: string) => {
     try {
-      return await createTag({ name });
+      return await noteActions.handleCreateTag(name);
     } catch (error) {
       console.error('Error creating tag:', error);
       throw error;
@@ -132,72 +115,58 @@ function App() {
 
   const handleSearch = async (query: string) => {
     setSearchQuery(query);
-    if (query.trim()) {
-      // Implementar búsqueda
-      console.log('Searching for:', query);
-    }
+    // TODO: Implement search functionality
   };
 
   const handleTagFilter = async (tagIds: string[]) => {
     setSelectedTagIds(tagIds);
-    if (tagIds.length > 0) {
-      // Implementar filtro por tags
-      console.log('Filtering by tags:', tagIds);
-    }
+    // TODO: Implement tag filtering
   };
 
-  const getCurrentNotes = () => {
-    switch (currentView) {
-      case 'active':
-        return activeNotes;
-      case 'archived':
-        return archivedNotes;
-      case 'all':
-        return notes;
-      default:
-        return activeNotes;
-    }
+  const handleNotesReorder = (reorderedNotes: Note[]) => {
+    // TODO: Implement notes reordering persistence
   };
 
-  // Buscar la nota seleccionada en todas las listas
-  const selectedNote = selectedNoteId 
-    ? notes.find(note => note.id === selectedNoteId) ||
-      activeNotes.find(note => note.id === selectedNoteId) ||
-      archivedNotes.find(note => note.id === selectedNoteId)
-    : undefined;
+  const handleCancelEdit = () => {
+    appState.resetAppState();
+  };
+
+  const handleSaveSuccess = () => {
+    appState.handleGoHome();
+  };
+
+  // Get current notes based on view
+  const currentNotes = getCurrentNotes(currentView, activeNotes, archivedNotes, notes);
+  
+  // Find selected note
+  const selectedNote = findSelectedNote(selectedNoteId, notes, activeNotes, archivedNotes);
+  
+  // Get all notes for dashboard
+  const allNotes = getAllNotes(activeNotes, archivedNotes);
 
   return (
-    <div className="min-h-screen bg-gray-950 text-gray-100">
+    <AnimatedBackground variant="gradient">
       {/* Header */}
       <Header
         title="Notes App"
         currentView={currentView}
         onViewChange={handleViewChange}
         onCreateNote={handleNewNote}
+        onGoHome={handleGoHome}
       />
 
       {/* Success Message */}
-      {showSuccessMessage && (
-        <div className="fixed top-20 right-4 z-50 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-2 animate-in slide-in-from-right">
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-          </svg>
-          <span>{showSuccessMessage}</span>
-          <button
-            onClick={() => setShowSuccessMessage(null)}
-            className="ml-2 text-green-200 hover:text-white"
-          >
-            ✕
-          </button>
-        </div>
-      )}
+      <SuccessMessage 
+        message={showSuccessMessage} 
+        onClose={clearSuccessMessage} 
+      />
 
       {/* Main Layout */}
       <div className="flex h-[calc(100vh-64px)]">
         {/* Sidebar */}
         <div className="w-80 flex-shrink-0 border-r border-gray-800">
           <Sidebar
-            notes={getCurrentNotes()}
+            notes={currentNotes}
             selectedNoteId={selectedNoteId}
             onNoteSelect={handleNoteSelect}
             view={currentView}
@@ -206,35 +175,26 @@ function App() {
             onSearch={handleSearch}
             onTagFilter={handleTagFilter}
             availableTags={tags}
+            loading={loading}
+            onNotesReorder={handleNotesReorder}
           />
         </div>
 
         {/* Main Content Area */}
-        <main className="flex-1 bg-gray-900 overflow-hidden">
+        <main className="flex-1 bg-gray-900/50 backdrop-blur-sm overflow-hidden">
           {loading && (
-            <div className="flex items-center justify-center h-full">
-              <div className="flex items-center space-x-2 text-gray-400">
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
-                <span>Loading...</span>
-              </div>
-            </div>
+            <LoadingSpinner className="h-full" />
           )}
 
           {(error || tagsError) && (
-            <div className="m-4 bg-red-900/50 border border-red-700 text-red-200 px-4 py-3 rounded-lg">
-              <div className="flex items-center justify-between">
-                <span>{error || tagsError}</span>
-                <button
-                  onClick={() => { clearError(); clearTagsError(); }}
-                  className="text-red-300 hover:text-red-100 transition-colors"
-                >
-                  ✕
-                </button>
-              </div>
-            </div>
+            <ErrorMessage 
+              error={error || tagsError} 
+              onClose={() => { clearError(); clearTagsError(); }}
+              className="m-4"
+            />
           )}
 
-          {!loading && !selectedNoteId && !isCreating && (
+          {!loading && !selectedNoteId && !isCreating && !showDashboard && (
             <div className="flex items-center justify-center h-full">
               <div className="text-center max-w-md">
                 <div className="w-24 h-24 mx-auto mb-6 text-gray-600">
@@ -282,22 +242,41 @@ function App() {
           )}
 
           {/* Note Editor */}
-          {(selectedNoteId || isCreating) && (
-            <NoteEditor
-              note={selectedNote}
-              isCreating={isCreating}
-              onSave={handleSaveNote}
-              onCancel={handleCancelEdit}
-              onDelete={handleDeleteNote}
-              onToggleArchive={handleToggleArchive}
-              availableTags={tags}
-              onCreateTag={handleCreateTag}
-              onSaveSuccess={handleSaveSuccess}
-            />
-          )}
+                                {showDashboard && (
+                        <Dashboard 
+                          notes={[...activeNotes, ...archivedNotes]} 
+                          tags={tags} 
+                          loading={loading || tagsLoading}
+                        />
+                      )}
+                      {isViewing && selectedNote && (
+                        <NoteViewer
+                          note={selectedNote}
+                          availableTags={tags}
+                          onEdit={handleEditNote}
+                          onBack={handleGoHome}
+                          onDelete={handleDeleteNote}
+                          onToggleArchive={handleToggleArchive}
+                        />
+                      )}
+                      {(selectedNoteId || isCreating) && !showDashboard && !isViewing && (
+                        <NoteEditor
+                          note={selectedNote}
+                          isCreating={isCreating}
+                          onSave={handleSaveNote}
+                          onCancel={handleCancelEdit}
+                          onDelete={handleDeleteNote}
+                          onToggleArchive={handleToggleArchive}
+                          availableTags={tags}
+                          onCreateTag={handleCreateTag}
+                          onSaveSuccess={handleSaveSuccess}
+                          onGoHome={handleGoHome}
+                          onView={() => selectedNote && handleViewNote(selectedNote.id)}
+                        />
+                      )}
         </main>
       </div>
-    </div>
+    </AnimatedBackground>
   );
 }
 

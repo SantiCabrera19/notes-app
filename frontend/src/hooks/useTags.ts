@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { apiService } from '../services/api';
 import type { Tag, CreateTagRequest, UpdateTagRequest } from '../services/api';
 
@@ -7,7 +7,7 @@ export const useTags = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchTags = async () => {
+  const fetchTags = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -18,9 +18,9 @@ export const useTags = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const createTag = async (data: CreateTagRequest) => {
+  const createTag = useCallback(async (data: CreateTagRequest) => {
     setLoading(true);
     setError(null);
     try {
@@ -33,9 +33,9 @@ export const useTags = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const updateTag = async (id: string, data: UpdateTagRequest) => {
+  const updateTag = useCallback(async (id: string, data: UpdateTagRequest) => {
     setLoading(true);
     setError(null);
     try {
@@ -48,9 +48,9 @@ export const useTags = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const deleteTag = async (id: string) => {
+  const deleteTag = useCallback(async (id: string) => {
     setLoading(true);
     setError(null);
     try {
@@ -62,14 +62,14 @@ export const useTags = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const clearError = () => setError(null);
+  const clearError = useCallback(() => setError(null), []);
 
   // Load tags on mount
   useEffect(() => {
     fetchTags();
-  }, []);
+  }, [fetchTags]);
 
   return {
     tags,
