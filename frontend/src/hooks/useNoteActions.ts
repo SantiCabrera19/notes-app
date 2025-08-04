@@ -16,11 +16,11 @@ export const useNoteActions = (showSuccessMessage: (message: string) => void) =>
   const handleSaveNote = useCallback(async (data: CreateNoteRequest | UpdateNoteRequest, isCreating: boolean, selectedNoteId?: string) => {
     try {
       if (isCreating) {
-        const newNote = await createNote(data);
+        const newNote = await createNote(data as CreateNoteRequest);
         showSuccessMessage('Note created successfully! 🎉');
         return newNote;
       } else if (selectedNoteId) {
-        await updateNote(selectedNoteId, data);
+        await updateNote(selectedNoteId, data as UpdateNoteRequest);
         showSuccessMessage('Note updated successfully! ✨');
       }
     } catch (error) {

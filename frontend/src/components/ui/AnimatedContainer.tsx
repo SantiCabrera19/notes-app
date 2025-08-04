@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface AnimatedContainerProps {
@@ -24,7 +24,7 @@ const variants = {
     scale: 1,
     transition: {
       duration: 0.3,
-      ease: [0.25, 0.46, 0.45, 0.94],
+      ease: "easeOut",
     },
   },
   exit: (direction: string) => ({
@@ -34,7 +34,7 @@ const variants = {
     scale: 0.95,
     transition: {
       duration: 0.2,
-      ease: [0.25, 0.46, 0.45, 0.94],
+      ease: "easeIn",
     },
   }),
 };
@@ -60,7 +60,7 @@ export const AnimatedContainer: React.FC<AnimatedContainerProps> = ({
           transition={{
             delay,
             duration,
-            ease: [0.25, 0.46, 0.45, 0.94],
+            ease: "easeOut",
           }}
         >
           {children}

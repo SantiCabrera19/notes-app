@@ -1,14 +1,14 @@
-import React from 'react';
+
 import { motion } from 'framer-motion';
 import { AnimatedButton } from './ui/AnimatedButton';
-import { Plus, Search, Archive, FileText, Grid3X3, BarChart3, Home } from 'lucide-react';
+import { Plus, Archive, FileText, Grid3X3 } from 'lucide-react';
 
 interface HeaderProps {
   title: string;
   onViewChange?: (view: 'active' | 'archived' | 'all') => void;
   currentView?: 'active' | 'archived' | 'all';
   onCreateNote?: () => void;
-  onShowDashboard?: () => void;
+
   onGoHome?: () => void;
 }
 
@@ -23,7 +23,6 @@ export const Header: React.FC<HeaderProps> = ({
   onViewChange,
   currentView = 'active',
   onCreateNote,
-  onShowDashboard,
   onGoHome,
 }) => {
   return (

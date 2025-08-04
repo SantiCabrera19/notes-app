@@ -13,7 +13,7 @@ interface DraggableNoteListProps {
 
 export const DraggableNoteList: React.FC<DraggableNoteListProps> = ({
   notes,
-  selectedNoteId,
+  _selectedNoteId,
   onNoteSelect,
   onNotesReorder,
   renderNote,

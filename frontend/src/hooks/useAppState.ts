@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import type { Note } from '../services/api';
+
 
 export type ViewType = 'active' | 'archived' | 'all';
 

@@ -12,7 +12,7 @@ import {
 import type { Note, Tag as TagType } from '../../services/api';
 import { DashboardSkeleton } from './Skeleton';
 import { 
-  getAllNotes, 
+  _getAllNotes, 
   getNotesCreatedToday, 
   getNotesWithTags, 
   getRecentNotes, 
@@ -209,7 +209,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ notes, tags, loading = fal
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {stats.map((stat, index) => (
+        {stats.map((stat, _index) => (
           <StatCard
             key={stat.title}
             title={stat.title}

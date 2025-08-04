@@ -25,11 +25,11 @@ interface NoteViewerProps {
 
 export const NoteViewer: React.FC<NoteViewerProps> = ({
   note,
-  availableTags,
   onEdit,
   onBack,
   onDelete,
   onToggleArchive,
+  availableTags: _availableTags,
 }) => {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);

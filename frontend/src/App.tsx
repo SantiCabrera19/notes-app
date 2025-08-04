@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
 import { NoteEditor } from './components/NoteEditor';
@@ -123,7 +123,7 @@ function App() {
     // TODO: Implement tag filtering
   };
 
-  const handleNotesReorder = (reorderedNotes: Note[]) => {
+  const handleNotesReorder = (_reorderedNotes: Note[]) => {
     // TODO: Implement notes reordering persistence
   };
 
@@ -142,7 +142,7 @@ function App() {
   const selectedNote = findSelectedNote(selectedNoteId, notes, activeNotes, archivedNotes);
   
   // Get all notes for dashboard
-  const allNotes = getAllNotes(activeNotes, archivedNotes);
+  const _allNotes = getAllNotes(activeNotes, archivedNotes);
 
   return (
     <AnimatedBackground variant="gradient">

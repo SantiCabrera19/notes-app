@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Tag, X, ChevronDown } from 'lucide-react';
 import { AnimatedButton } from './ui/AnimatedButton';
@@ -91,7 +91,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     return true;
   });
 
-  const renderNote = (note: Note, index: number) => (
+  const renderNote = (note: Note, _index: number) => (
     <motion.div
       className={`p-4 rounded-lg border transition-all ${
         selectedNoteId === note.id
