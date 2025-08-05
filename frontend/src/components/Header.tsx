@@ -2,6 +2,7 @@
 import { motion } from 'framer-motion';
 import { AnimatedButton } from './ui/AnimatedButton';
 import { Plus, Archive, FileText, Grid3X3 } from 'lucide-react';
+import { Auth } from './Auth';
 
 interface HeaderProps {
   title: string;
@@ -47,11 +48,15 @@ export const Header: React.FC<HeaderProps> = ({
                         whileTap={{ scale: 0.95 }}
                       >
                         <motion.div
-                          className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center"
+                          className="w-8 h-8 rounded flex items-center justify-center overflow-hidden"
                           whileHover={{ scale: 1.1, rotate: 5 }}
                           transition={{ type: 'spring', stiffness: 300 }}
                         >
-                          <span className="text-white font-bold text-sm">N</span>
+                          <img 
+                            src="/n-logo.png" 
+                            alt="Notes App Logo" 
+                            className="w-full h-full object-cover"
+                          />
                         </motion.div>
                         <motion.h1
                           className="text-xl font-semibold text-white"
@@ -71,39 +76,40 @@ export const Header: React.FC<HeaderProps> = ({
           animate={{ x: 0, opacity: 1 }}
           transition={{ delay: 0.4, duration: 0.5 }}
         >
-                              {/* View Toggles */}
-                    <motion.div
-                      className="flex items-center space-x-1 bg-gray-800 rounded-lg p-1"
-                      initial={{ scale: 0.9, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      transition={{ delay: 0.5 }}
-                    >
-                      {(['active', 'archived', 'all'] as const).map((view) => {
-                        const config = viewConfig[view];
-                        const Icon = config.icon;
-                        const isActive = currentView === view;
+          {/* Auth Component */}
+          <Auth />
+          
+          {/* View Toggles */}
+          <motion.div
+            className="flex items-center space-x-1 bg-gray-800 rounded-lg p-1"
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.5 }}
+          >
+            {(['active', 'archived', 'all'] as const).map((view) => {
+              const config = viewConfig[view];
+              const Icon = config.icon;
+              const isActive = currentView === view;
 
-                        return (
-                          <motion.button
-                            key={view}
-                            onClick={() => onViewChange?.(view)}
-                            className={`px-3 py-1 text-sm rounded transition-colors flex items-center space-x-1 ${
-                              isActive
-                                ? 'bg-blue-600 text-white'
-                                : 'text-gray-400 hover:text-white'
-                            }`}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            transition={{ type: 'spring', stiffness: 400 }}
-                          >
-                            <Icon className="w-4 h-4" />
-                            <span>{config.label}</span>
-                          </motion.button>
-                        );
-                      })}
-                    </motion.div>
-
-
+              return (
+                <motion.button
+                  key={view}
+                  onClick={() => onViewChange?.(view)}
+                  className={`px-3 py-1 text-sm rounded transition-colors flex items-center space-x-1 ${
+                    isActive
+                      ? 'bg-blue-600 text-white'
+                      : 'text-gray-400 hover:text-white'
+                  }`}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ type: 'spring', stiffness: 400 }}
+                >
+                  <Icon className="w-4 h-4" />
+                  <span>{config.label}</span>
+                </motion.button>
+              );
+            })}
+          </motion.div>
 
           {/* New Note Button */}
           <AnimatedButton

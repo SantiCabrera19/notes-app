@@ -1,7 +1,0 @@
-{
-  "prisma": {
-    "generate": {
-      "output": "../node_modules/.prisma/client"
-    }
-  }
-} 

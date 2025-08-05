@@ -163,7 +163,7 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
               value={value}
               onChange={(e) => onChange(e.target.value)}
               placeholder={placeholder}
-              className="w-full h-full p-4 bg-gray-900 text-white placeholder-gray-400 resize-none focus:outline-none focus:ring-0 border-0"
+              className="w-full h-[500px] p-4 bg-gray-900 text-white placeholder-gray-400 resize-none focus:outline-none focus:ring-0 border-0"
               style={{ fontFamily: 'monospace' }}
             />
           </motion.div>
