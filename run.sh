@@ -37,6 +37,7 @@ check_requirements() {
     
     if ! command -v node &> /dev/null; then
         print_error "Node.js is not installed. Please install Node.js 18+"
+        print_status "Download from: https://nodejs.org/"
         exit 1
     fi
     
@@ -48,10 +49,13 @@ check_requirements() {
     NODE_VERSION=$(node --version | cut -d'v' -f2 | cut -d'.' -f1)
     if [ "$NODE_VERSION" -lt 18 ]; then
         print_error "Node.js version 18+ is required. Current version: $(node --version)"
+        print_status "Please upgrade Node.js to version 18 or higher"
         exit 1
     fi
     
     print_success "Requirements check passed"
+    print_status "Node.js version: $(node --version)"
+    print_status "npm version: $(npm --version)"
 }
 
 # Setup backend
@@ -64,6 +68,8 @@ setup_backend() {
     if [ ! -d "node_modules" ]; then
         print_status "Installing backend dependencies..."
         npm install
+    else
+        print_status "Backend dependencies already installed"
     fi
     
     # Check if .env exists, create from example if not
@@ -72,12 +78,16 @@ setup_backend() {
         if [ -f ".env.example" ]; then
             print_status "Creating .env from .env.example..."
             cp .env.example .env
-            print_warning "Please edit .env file with your database configuration before running again"
+            print_warning "⚠️  IMPORTANT: Please edit .env file with your database configuration"
             print_status "Required variables:"
-            echo "  DATABASE_URL=\"your_database_url_here\""
-            echo "  DIRECT_URL=\"your_direct_database_url_here\""
+            echo "  DATABASE_URL=\"your_supabase_database_url\""
+            echo "  DIRECT_URL=\"your_supabase_direct_url\""
+            echo "  SUPABASE_URL=\"your_supabase_project_url\""
+            echo "  SUPABASE_ANON_KEY=\"your_supabase_anon_key\""
             echo "  PORT=3001"
             echo "  NODE_ENV=development"
+            print_status "You can get these values from your Supabase project dashboard"
+            print_warning "The app will not work without proper database configuration"
             exit 1
         else
             print_error "No .env.example file found. Please create .env manually"
@@ -107,6 +117,8 @@ setup_frontend() {
     if [ ! -d "node_modules" ]; then
         print_status "Installing frontend dependencies..."
         npm install
+    else
+        print_status "Frontend dependencies already installed"
     fi
     
     print_success "Frontend setup completed"
@@ -126,6 +138,13 @@ start_app() {
     
     # Wait a moment for backend to start
     sleep 3
+    
+    # Check if backend is running
+    if ! curl -s http://localhost:3001/health > /dev/null; then
+        print_error "Backend failed to start. Check the logs above."
+        kill $BACKEND_PID 2>/dev/null || true
+        exit 1
+    fi
     
     # Start frontend in background
     print_status "Starting frontend server..."

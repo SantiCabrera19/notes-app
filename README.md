@@ -45,6 +45,22 @@ npm install
 npm run dev
 ```
 
+## 🔐 Authentication
+
+This application uses **Google OAuth** for authentication via Supabase Auth.
+
+### Login Information
+- **Provider**: Google OAuth
+- **Method**: Single Sign-On (SSO)
+- **Account Selection**: Users must always select an account (no auto-login)
+- **No Default Credentials**: Authentication is handled entirely through Google
+
+### Setup Authentication
+1. Create a Supabase project at https://supabase.com
+2. Enable Google OAuth in Authentication > Providers
+3. Configure Google Cloud Console OAuth credentials
+4. Add your Supabase credentials to the backend `.env` file
+
 ## 🏗️ Architecture
 
 ### Frontend (SPA)
@@ -53,6 +69,7 @@ npm run dev
 - **Styling**: Tailwind CSS 3.3.2
 - **State Management**: React Hooks
 - **HTTP Client**: Fetch API
+- **Authentication**: Supabase Auth + Google OAuth
 
 ### Backend (REST API)
 - **Runtime**: Node.js 18.17.0
@@ -90,6 +107,9 @@ npm run dev
 - ⌨️ **Keyboard shortcuts** (Ctrl+S, Esc)
 - 🔍 **Advanced search** with filters
 - 📊 **Visual indicators** for note status
+- 🎭 **Smooth animations** with Framer Motion
+- 🖱️ **Drag & drop** for note reordering
+- 📝 **Markdown editor** with live preview
 
 ## 🗄️ Database Schema
 
@@ -198,6 +218,10 @@ npm run preview      # Preview production build
 DATABASE_URL="postgresql://user:password@host:port/database"
 DIRECT_URL="postgresql://user:password@host:port/database"
 
+# Supabase Auth
+SUPABASE_URL="https://your-project.supabase.co"
+SUPABASE_ANON_KEY="your-supabase-anon-key"
+
 # Server
 PORT=3001
 NODE_ENV=production
@@ -220,6 +244,11 @@ cd frontend
 npm run build
 # Serve dist/ folder with your preferred web server
 ```
+
+### Recommended Deployment Platforms
+- **Frontend**: Vercel, Netlify, or GitHub Pages
+- **Backend**: Railway, Heroku, or DigitalOcean
+- **Database**: Supabase (recommended) or AWS RDS
 
 ## 🧪 Testing
 
@@ -252,6 +281,9 @@ npm test
 - **typescript**: 5.0.2 - TypeScript
 - **vite**: 4.4.5 - Build tool
 - **tailwindcss**: 3.3.2 - CSS framework
+- **framer-motion**: 10.16.4 - Animations
+- **lucide-react**: 0.263.1 - Icons
+- **react-markdown**: 8.0.7 - Markdown rendering
 - **@types/react**: 18.2.15 - React types
 - **@types/react-dom**: 18.2.7 - React DOM types
 
@@ -270,6 +302,10 @@ This project is part of the Ensolvers hiring process. All rights reserved.
 ## 👨‍💻 Author
 
 **Santiago** - Full Stack Developer
+
+**Portfolio**: [https://portfolio-santiago-ten.vercel.app/](https://portfolio-santiago-ten.vercel.app/)
+
+**GitHub**: [@SantiCabrera19](https://github.com/SantiCabrera19)
 
 ---
 
