@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 import { AnimatedButton } from './ui/AnimatedButton';
 import { Plus, Archive, FileText, Grid3X3 } from 'lucide-react';
 import { Auth } from './Auth';
-import logo from '../assets/n-logo.png';
 
 interface HeaderProps {
   title: string;
@@ -54,7 +53,7 @@ export const Header = memo<HeaderProps>(({
                           transition={{ type: 'spring', stiffness: 300 }}
                         >
                           <img 
-                            src={logo} 
+                            src="/n-logo.png" 
                             alt="Notes App Logo" 
                             className="w-full h-full object-cover"
                           />
