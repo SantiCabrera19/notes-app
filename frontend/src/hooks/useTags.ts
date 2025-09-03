@@ -12,7 +12,7 @@ export const useTags = () => {
     setError(null);
     try {
       const fetchedTags = await apiService.getAllTags();
-      setTags(fetchedTags);
+      setTags(Array.isArray(fetchedTags) ? fetchedTags : []);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch tags');
     } finally {

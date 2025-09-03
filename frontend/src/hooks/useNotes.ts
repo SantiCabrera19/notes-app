@@ -14,7 +14,7 @@ export const useNotes = () => {
     setError(null);
     try {
       const fetchedNotes = await apiService.getAllNotes();
-      setNotes(fetchedNotes);
+      setNotes(Array.isArray(fetchedNotes) ? fetchedNotes : []);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch notes');
     } finally {
@@ -27,7 +27,7 @@ export const useNotes = () => {
     setError(null);
     try {
       const fetchedNotes = await apiService.getActiveNotes();
-      setActiveNotes(fetchedNotes);
+      setActiveNotes(Array.isArray(fetchedNotes) ? fetchedNotes : []);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch active notes');
     } finally {
@@ -40,7 +40,7 @@ export const useNotes = () => {
     setError(null);
     try {
       const fetchedNotes = await apiService.getArchivedNotes();
-      setArchivedNotes(fetchedNotes);
+      setArchivedNotes(Array.isArray(fetchedNotes) ? fetchedNotes : []);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch archived notes');
     } finally {
@@ -126,7 +126,7 @@ export const useNotes = () => {
     setError(null);
     try {
       const searchResults = await apiService.searchNotes(query, archived);
-      return searchResults;
+      return Array.isArray(searchResults) ? searchResults : [];
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to search notes');
       throw err;
@@ -140,7 +140,7 @@ export const useNotes = () => {
     setError(null);
     try {
       const filteredNotes = await apiService.getNotesByTags(tagIds, archived);
-      return filteredNotes;
+      return Array.isArray(filteredNotes) ? filteredNotes : [];
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to get notes by tags');
       throw err;
