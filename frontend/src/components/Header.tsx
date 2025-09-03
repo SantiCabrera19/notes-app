@@ -48,7 +48,7 @@ export const Header = memo<HeaderProps>(({
                         whileTap={{ scale: 0.95 }}
                       >
                         <motion.div
-                          className="w-8 h-8 rounded flex items-center justify-center overflow-hidden"
+                          className="w-8 h-8 rounded flex items-center justify-center overflow-hidden bg-blue-600"
                           whileHover={{ scale: 1.1, rotate: 5 }}
                           transition={{ type: 'spring', stiffness: 300 }}
                         >
@@ -56,6 +56,12 @@ export const Header = memo<HeaderProps>(({
                             src="/n-logo.png" 
                             alt="Notes App Logo" 
                             className="w-full h-full object-cover"
+                            onError={(e) => {
+                              // Fallback to text if image fails to load
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = 'none';
+                              target.parentElement!.innerHTML = '<span class="text-white font-bold text-lg">N</span>';
+                            }}
                           />
                         </motion.div>
                         <motion.h1
