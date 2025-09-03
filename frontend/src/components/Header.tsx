@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import { motion } from 'framer-motion';
 import { AnimatedButton } from './ui/AnimatedButton';
+import { Logo } from './ui/Logo';
 import { Plus, Archive, FileText, Grid3X3 } from 'lucide-react';
 import { Auth } from './Auth';
 
@@ -48,11 +49,9 @@ export const Header = memo<HeaderProps>(({
                         whileTap={{ scale: 0.95 }}
                       >
                         <motion.div
-                          className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg"
                           whileHover={{ 
-                            scale: 1.1, 
-                            rotate: [0, -10, 10, -5, 0],
-                            boxShadow: "0 10px 25px rgba(59, 130, 246, 0.4)"
+                            scale: 1.1,
+                            rotate: 5
                           }}
                           whileTap={{ scale: 0.95 }}
                           transition={{ 
@@ -61,23 +60,7 @@ export const Header = memo<HeaderProps>(({
                             damping: 10
                           }}
                         >
-                          <img 
-                            src="/n-logo.png" 
-                            alt="Notes App Logo" 
-                            className="w-8 h-8 object-contain filter brightness-0 invert"
-                            onLoad={(e) => {
-                              console.log('Logo loaded successfully');
-                              // Remove the filter to show original colors
-                              const target = e.target as HTMLImageElement;
-                              target.className = "w-8 h-8 object-contain";
-                            }}
-                            onError={(e) => {
-                              console.error('Logo failed to load, using fallback');
-                              const target = e.target as HTMLImageElement;
-                              target.style.display = 'none';
-                              target.parentElement!.innerHTML = '<span class="text-white font-bold text-xl drop-shadow-lg">N</span>';
-                            }}
-                          />
+                          <Logo size="lg" />
                         </motion.div>
                         <motion.h1
                           className="text-xl font-semibold text-white"
