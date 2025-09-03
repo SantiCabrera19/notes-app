@@ -164,7 +164,7 @@ export const AppContent = memo<AppContentProps>(({
         {/* Dashboard */}
         {showDashboard && (
           <Dashboard 
-            notes={[...activeNotes, ...archivedNotes]} 
+            notes={[...(activeNotes || []), ...(archivedNotes || [])]} 
             tags={tags} 
             loading={loading}
           />
