@@ -1,5 +1,4 @@
 import { useState, useCallback, useEffect } from 'react'
-import type { Note } from '../services/api'
 
 interface LocalNote {
   id: string
@@ -15,7 +14,7 @@ const LOCAL_STORAGE_KEY = 'notes_app_local_notes'
 
 export const useLocalNotes = () => {
   const [notes, setNotes] = useState<LocalNote[]>([])
-  const [loading, setLoading] = useState(false)
+  const [loading] = useState(false)
 
   // Cargar notas del localStorage
   useEffect(() => {

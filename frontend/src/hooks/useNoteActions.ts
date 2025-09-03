@@ -42,9 +42,11 @@ export const useNoteActions = (showSuccessMessage: (message: string) => void) =>
   const handleToggleArchive = useCallback(async (id: string) => {
     try {
       const updatedNote = await toggleArchive(id);
-      const action = updatedNote.isArchived ? 'archived' : 'unarchived';
-      showSuccessMessage(`Note ${action} successfully! 📁`);
-      return updatedNote;
+      if (updatedNote) {
+        const action = updatedNote.isArchived ? 'archived' : 'unarchived';
+        showSuccessMessage(`Note ${action} successfully! 📁`);
+        return updatedNote;
+      }
     } catch (error) {
       console.error('Error toggling archive:', error);
       throw error;

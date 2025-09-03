@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { supabase, type User, type AuthState } from '../lib/supabase'
+import { supabase, type AuthState } from '../lib/supabase'
 
 export const useAuth = () => {
   const [authState, setAuthState] = useState<AuthState>({
@@ -41,7 +41,7 @@ export const useAuth = () => {
 
     // Escuchar cambios de autenticación
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      async (_event, session) => {
       // removed debug log
         
         if (session?.user) {

@@ -83,7 +83,6 @@ export const Auth = () => {
       <AnimatedButton
         onClick={signInWithGoogle}
         className="bg-gray-800 hover:bg-gray-700 text-white w-8 h-8 rounded-md border border-gray-600 transition-all duration-200 hover:border-gray-500 hover:shadow-lg flex items-center justify-center"
-        title="Iniciar sesión con Google"
       >
         <svg className="w-4 h-4" viewBox="0 0 24 24">
           <path
