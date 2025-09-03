@@ -105,4 +105,4 @@ prisma/migrations/
 
 # Backup files
 *.bak
-*.backup 
+*.backup frontend/backend-dist/
