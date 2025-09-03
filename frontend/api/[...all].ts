@@ -1,11 +1,11 @@
 import serverless from 'serverless-http';
 
-// Dynamically import the compiled Express app from the backend build output
-const appModule = await import('../../backend/dist/app.js');
+// Import the compiled Express app copied into the frontend during build
+const appModule = await import('../backend-dist/app.js');
 const app = appModule.default;
 
 export const config = {
-  runtime: 'nodejs22.x',
+  runtime: 'nodejs',
 };
 
 export default serverless(app);

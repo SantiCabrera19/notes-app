@@ -1,4 +1,5 @@
 {
+  "$schema": "https://json.schemastore.org/package.json",
   "name": "notes-app",
   "version": "1.0.0",
   "description": "A modern, full-stack web application for taking notes, tagging, and filtering them. Built with React, Node.js, TypeScript, and PostgreSQL.",
