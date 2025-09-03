@@ -1,112 +1,81 @@
 import { useAuth } from './useAuth'
 import { useNotes } from './useNotes'
 import { useLocalNotes } from './useLocalNotes'
-import { useCallback } from 'react'
-import type { Note } from '../services/api'
+import { useMemo } from 'react'
 
 export const useUnifiedNotes = () => {
   const { user } = useAuth()
   const remoteNotes = useNotes()
   const localNotes = useLocalNotes()
 
-  // Determinar qué sistema de notas usar
+  // Determinar qué sistema de notas usar (memoizado)
   const isAuthenticated = !!user
-  const notesSystem = isAuthenticated ? remoteNotes : localNotes
+  const notesSystem = useMemo(() => 
+    isAuthenticated ? remoteNotes : localNotes,
+    [isAuthenticated, remoteNotes, localNotes]
+  )
 
-  // Crear nota
-  const createNote = useCallback(async (data: { title: string; content: string; tags?: any[] }) => {
-    if (isAuthenticated) {
-      return await remoteNotes.createNote(data)
-    } else {
-      return await localNotes.createNote(data)
+  // Operaciones optimizadas usando el sistema seleccionado
+  const operations = useMemo(() => ({
+    createNote: async (data: { title: string; content: string; tags?: any[] }) => {
+      return isAuthenticated 
+        ? await remoteNotes.createNote(data)
+        : await localNotes.createNote(data)
+    },
+    
+    updateNote: async (id: string, data: { title?: string; content?: string; tags?: any[] }) => {
+      return isAuthenticated 
+        ? await remoteNotes.updateNote(id, data)
+        : await localNotes.updateNote(id, data)
+    },
+    
+    deleteNote: async (id: string) => {
+      return isAuthenticated 
+        ? await remoteNotes.deleteNote(id)
+        : await localNotes.deleteNote(id)
+    },
+    
+    toggleArchive: async (id: string) => {
+      return isAuthenticated 
+        ? await remoteNotes.toggleArchiveNote(id)
+        : await localNotes.toggleArchive(id)
+    },
+    
+    searchNotes: async (query: string) => {
+      return isAuthenticated 
+        ? await remoteNotes.searchNotes(query)
+        : await localNotes.searchNotes(query)
     }
-  }, [isAuthenticated, remoteNotes, localNotes])
+  }), [isAuthenticated, remoteNotes, localNotes])
 
-  // Actualizar nota
-  const updateNote = useCallback(async (id: string, data: { title?: string; content?: string; tags?: any[] }) => {
-    if (isAuthenticated) {
-      return await remoteNotes.updateNote(id, data)
-    } else {
-      return await localNotes.updateNote(id, data)
-    }
-  }, [isAuthenticated, remoteNotes, localNotes])
-
-  // Eliminar nota
-  const deleteNote = useCallback(async (id: string) => {
-    if (isAuthenticated) {
-      return await remoteNotes.deleteNote(id)
-    } else {
-      return await localNotes.deleteNote(id)
-    }
-  }, [isAuthenticated, remoteNotes, localNotes])
-
-  // Cambiar estado de archivo
-  const toggleArchive = useCallback(async (id: string) => {
-    if (isAuthenticated) {
-      return await remoteNotes.toggleArchiveNote(id)
-    } else {
-      return await localNotes.toggleArchive(id)
-    }
-  }, [isAuthenticated, remoteNotes, localNotes])
-
-  // Buscar notas
-  const searchNotes = useCallback(async (query: string) => {
-    if (isAuthenticated) {
-      return await remoteNotes.searchNotes(query)
-    } else {
-      return await localNotes.searchNotes(query)
-    }
-  }, [isAuthenticated, remoteNotes, localNotes])
-
-  // Obtener notas activas
-  const getActiveNotes = useCallback(() => {
-    if (isAuthenticated) {
-      return remoteNotes.activeNotes
-    } else {
-      return localNotes.getActiveNotes()
-    }
-  }, [isAuthenticated, remoteNotes, localNotes])
-
-  // Obtener notas archivadas
-  const getArchivedNotes = useCallback(() => {
-    if (isAuthenticated) {
-      return remoteNotes.archivedNotes
-    } else {
-      return localNotes.getArchivedNotes()
-    }
-  }, [isAuthenticated, remoteNotes, localNotes])
-
-  // Obtener todas las notas
-  const getAllNotes = useCallback(() => {
-    if (isAuthenticated) {
-      return remoteNotes.notes
-    } else {
-      return localNotes.notes
-    }
-  }, [isAuthenticated, remoteNotes, localNotes])
+  // Estado de notas memoizado
+  const notesData = useMemo(() => ({
+    notes: isAuthenticated ? remoteNotes.notes : localNotes.notes,
+    activeNotes: isAuthenticated ? remoteNotes.activeNotes : localNotes.getActiveNotes(),
+    archivedNotes: isAuthenticated ? remoteNotes.archivedNotes : localNotes.getArchivedNotes()
+  }), [isAuthenticated, remoteNotes, localNotes])
+  
+  // Métodos de fetch memoizados
+  const fetchMethods = useMemo(() => ({
+    fetchActiveNotes: isAuthenticated ? remoteNotes.fetchActiveNotes : () => Promise.resolve(),
+    fetchArchivedNotes: isAuthenticated ? remoteNotes.fetchArchivedNotes : () => Promise.resolve(),
+    fetchAllNotes: isAuthenticated ? remoteNotes.fetchAllNotes : () => Promise.resolve(),
+    clearError: isAuthenticated ? remoteNotes.clearError : () => {}
+  }), [isAuthenticated, remoteNotes])
 
   return {
-    // Estado
-    notes: getAllNotes(),
-    activeNotes: getActiveNotes(),
-    archivedNotes: getArchivedNotes(),
+    // Estado optimizado
+    ...notesData,
     loading: notesSystem.loading,
     error: isAuthenticated ? remoteNotes.error : null,
     
-    // Acciones
-    createNote,
-    updateNote,
-    deleteNote,
-    toggleArchive,
-    searchNotes,
+    // Operaciones optimizadas
+    ...operations,
     
     // Estado de autenticación
     isAuthenticated,
     
-    // Métodos específicos del sistema remoto
-    fetchActiveNotes: isAuthenticated ? remoteNotes.fetchActiveNotes : () => {},
-    fetchArchivedNotes: isAuthenticated ? remoteNotes.fetchArchivedNotes : () => {},
-    fetchAllNotes: isAuthenticated ? remoteNotes.fetchAllNotes : () => {},
-    clearError: isAuthenticated ? remoteNotes.clearError : () => {},
+    // Métodos de fetch optimizados
+    ...fetchMethods,
   }
-} 
+}

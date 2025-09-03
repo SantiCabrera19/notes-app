@@ -1,4 +1,4 @@
-
+import { memo } from 'react';
 import { motion } from 'framer-motion';
 import { AnimatedButton } from './ui/AnimatedButton';
 import { Plus, Archive, FileText, Grid3X3 } from 'lucide-react';
@@ -19,7 +19,7 @@ const viewConfig = {
   all: { icon: Grid3X3, label: 'All' },
 };
 
-export const Header: React.FC<HeaderProps> = ({
+export const Header = memo<HeaderProps>(({
   title,
   onViewChange,
   currentView = 'active',
@@ -123,4 +123,4 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
     </motion.header>
   );
-}; 
+}); 

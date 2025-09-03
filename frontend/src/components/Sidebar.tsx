@@ -1,7 +1,6 @@
-import { } from 'react';
+import { memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search } from 'lucide-react';
-import { } from './ui/AnimatedButton';
 import { SidebarSkeleton } from './ui/Skeleton';
 import { DraggableNoteList } from './ui/DraggableNoteList';
 import type { Note } from '../services/api';
@@ -17,7 +16,7 @@ interface SidebarProps {
   onNotesReorder?: (notes: Note[]) => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({
+export const Sidebar = memo<SidebarProps>(({
   notes,
   selectedNoteId,
   onNoteSelect,
@@ -250,4 +249,4 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </motion.div>
     </motion.div>
   );
-}; 
+}); 

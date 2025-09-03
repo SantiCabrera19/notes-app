@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, memo } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Edit, 
@@ -24,7 +24,7 @@ interface NoteViewerProps {
   onToggleArchive: (id: string) => void;
 }
 
-export const NoteViewer: React.FC<NoteViewerProps> = ({
+export const NoteViewer = memo<NoteViewerProps>(({
   note,
   onEdit,
   onBack,
@@ -206,4 +206,4 @@ export const NoteViewer: React.FC<NoteViewerProps> = ({
       />
     </motion.div>
   );
-}; 
+});

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, memo } from 'react';
 import { TagSelector } from './TagSelector';
 import { MarkdownEditor } from './ui/MarkdownEditor';
 import type { Note, CreateNoteRequest, UpdateNoteRequest, Tag } from '../services/api';
@@ -17,7 +17,7 @@ interface NoteEditorProps {
   onView?: () => void;
 }
 
-export const NoteEditor: React.FC<NoteEditorProps> = ({
+export const NoteEditor = memo<NoteEditorProps>(({
   note,
   isCreating,
   onSave,
@@ -302,4 +302,4 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
       </div>
     </div>
   );
-};
+});
