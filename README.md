@@ -297,11 +297,11 @@ npm test
 
 ## 📄 License
 
-This project is part of the Ensolvers hiring process. All rights reserved.
+MIT License - Feel free to use this project as inspiration for your own notes app!
 
 ## 👨‍💻 Author
 
-**Santiago** - Full Stack Developer
+**Santiago Cabrera** - Full Stack Developer
 
 **Portfolio**: [https://portfolio-santiago-ten.vercel.app/](https://portfolio-santiago-ten.vercel.app/)
 
@@ -309,4 +309,4 @@ This project is part of the Ensolvers hiring process. All rights reserved.
 
 ---
 
-**Note**: This application was built as a technical exercise for Ensolvers. It demonstrates modern full-stack development practices with React, Node.js, TypeScript, and PostgreSQL. 
+**Note**: A personal notes application built with modern full-stack technologies. Perfect for organizing thoughts, ideas, and tasks with advanced tagging and search capabilities.

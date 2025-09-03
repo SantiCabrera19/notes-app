@@ -52,7 +52,19 @@ class ApiService {
       throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
     }
 
-    return response.json();
+    // Handle empty responses (e.g., 204 No Content) or non-JSON bodies gracefully
+    if (response.status === 204) {
+      return undefined as unknown as T;
+    }
+    const contentType = response.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      return undefined as unknown as T;
+    }
+    const text = await response.text();
+    if (!text) {
+      return undefined as unknown as T;
+    }
+    return JSON.parse(text) as T;
   }
 
   // Note endpoints

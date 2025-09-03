@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Edit, 
@@ -11,6 +11,7 @@ import {
   Clock
 } from 'lucide-react';
 import { AnimatedButton } from './ui/AnimatedButton';
+import { ConfirmDialog } from './ui/ConfirmDialog';
 import { MarkdownRenderer } from './ui/MarkdownRenderer';
 import type { Note, Tag as TagType } from '../services/api';
 
@@ -31,6 +32,7 @@ export const NoteViewer: React.FC<NoteViewerProps> = ({
   onToggleArchive,
   availableTags: _availableTags,
 }) => {
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('es-ES', {
@@ -115,7 +117,7 @@ export const NoteViewer: React.FC<NoteViewerProps> = ({
               {note.isArchived ? 'Unarchive' : 'Archive'}
             </AnimatedButton>
             <AnimatedButton
-              onClick={() => onDelete(note.id)}
+              onClick={() => setShowDeleteConfirm(true)}
               variant="ghost"
               size="sm"
               icon={<Trash2 className="w-4 h-4" />}
@@ -186,6 +188,22 @@ export const NoteViewer: React.FC<NoteViewerProps> = ({
           </div>
         </div>
       </motion.div>
+
+      {/* Delete confirm dialog */}
+      <ConfirmDialog
+        title="¿Eliminar esta nota?"
+        description="Esta acción no se puede deshacer. Para confirmar, escribe el título exacto de la nota."
+        confirmLabel="Eliminar"
+        cancelLabel="Cancelar"
+        danger
+        requireTextMatch={note.title}
+        isOpen={showDeleteConfirm}
+        onCancel={() => setShowDeleteConfirm(false)}
+        onConfirm={() => {
+          setShowDeleteConfirm(false);
+          onDelete(note.id);
+        }}
+      />
     </motion.div>
   );
 }; 

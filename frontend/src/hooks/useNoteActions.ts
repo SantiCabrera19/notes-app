@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useNotes } from './useNotes';
+import { useUnifiedNotes } from './useUnifiedNotes';
 import { useTags } from './useTags';
 import type { CreateNoteRequest, UpdateNoteRequest } from '../services/api';
 
@@ -8,8 +8,8 @@ export const useNoteActions = (showSuccessMessage: (message: string) => void) =>
     createNote,
     updateNote,
     deleteNote,
-    toggleArchiveNote,
-  } = useNotes();
+    toggleArchive,
+  } = useUnifiedNotes();
 
   const { createTag } = useTags();
 
@@ -41,7 +41,7 @@ export const useNoteActions = (showSuccessMessage: (message: string) => void) =>
 
   const handleToggleArchive = useCallback(async (id: string) => {
     try {
-      const updatedNote = await toggleArchiveNote(id);
+      const updatedNote = await toggleArchive(id);
       const action = updatedNote.isArchived ? 'archived' : 'unarchived';
       showSuccessMessage(`Note ${action} successfully! 📁`);
       return updatedNote;
@@ -49,7 +49,7 @@ export const useNoteActions = (showSuccessMessage: (message: string) => void) =>
       console.error('Error toggling archive:', error);
       throw error;
     }
-  }, [toggleArchiveNote, showSuccessMessage]);
+  }, [toggleArchive, showSuccessMessage]);
 
   const handleCreateTag = useCallback(async (name: string) => {
     try {

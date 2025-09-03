@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Tag, ChevronDown } from 'lucide-react';
-import { AnimatedButton } from './ui/AnimatedButton';
+import { Search } from 'lucide-react';
+import { } from './ui/AnimatedButton';
 import { SidebarSkeleton } from './ui/Skeleton';
 import { DraggableNoteList } from './ui/DraggableNoteList';
-import type { Note, Tag as TagType } from '../services/api';
+import type { Note } from '../services/api';
 
 interface SidebarProps {
   notes: Note[];
@@ -12,10 +12,7 @@ interface SidebarProps {
   onNoteSelect: (noteId: string) => void;
   view: 'active' | 'archived' | 'all';
   searchQuery?: string;
-  selectedTagIds?: string[];
   onSearch?: (query: string) => void;
-  onTagFilter?: (tagIds: string[]) => void;
-  availableTags?: TagType[];
   loading?: boolean;
   onNotesReorder?: (notes: Note[]) => void;
 }
@@ -26,16 +23,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onNoteSelect,
   view,
   searchQuery = '',
-  selectedTagIds = [],
   onSearch,
-  onTagFilter,
-  availableTags = [],
   loading = false,
   onNotesReorder,
 }) => {
-  const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
-  const [showTagFilter, setShowTagFilter] = useState(false);
-
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -45,7 +36,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     if (diffInDays === 1) return 'Yesterday';
     if (diffInDays < 7) return `${diffInDays} days ago`;
     if (diffInDays < 30) return `${Math.floor(diffInDays / 7)} weeks ago`;
-    if (diffInDays < 365) return `${Math.floor(diffInDays / 30)} months ago`;
+    if (diffInDays < 365) return `${Math.floor(diffInDays / 30)} months ago`; 
     return `${Math.floor(diffInDays / 365)} years ago`;
   };
 
@@ -54,41 +45,30 @@ export const Sidebar: React.FC<SidebarProps> = ({
     return text.substring(0, maxLength) + '...';
   };
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSearch?.(localSearchQuery);
-  };
+  // Normaliza texto: quita acentos, pasa a minúsculas y recorta
+  const normalizeString = (value: string): string =>
+    value
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .trim();
 
-  const handleTagToggle = (tagId: string) => {
-    const newSelectedTags = selectedTagIds.includes(tagId)
-      ? selectedTagIds.filter(id => id !== tagId)
-      : [...selectedTagIds, tagId];
-    
-    onTagFilter?.(newSelectedTags);
+  // Real-time search - filter as user types
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value;
+    onSearch?.(query); // Update parent state immediately
   };
 
   const clearFilters = () => {
-    setLocalSearchQuery('');
     onSearch?.('');
-    onTagFilter?.([]);
   };
 
+  // Prefijo por título: solo notas cuyo título comience con la query
   const filteredNotes = notes.filter(note => {
-    if (localSearchQuery) {
-      const query = localSearchQuery.toLowerCase();
-      const matchesSearch = 
-        note.title.toLowerCase().includes(query) ||
-        note.content.toLowerCase().includes(query);
-      if (!matchesSearch) return false;
-    }
-
-    if (selectedTagIds.length > 0) {
-      const noteTagIds = note.tags.map(tag => tag.id);
-      const hasSelectedTags = selectedTagIds.some(tagId => noteTagIds.includes(tagId));
-      if (!hasSelectedTags) return false;
-    }
-
-    return true;
+    const q = normalizeString(searchQuery || '');
+    if (!q) return true;
+    const title = normalizeString(note.title);
+    return title.startsWith(q);
   });
 
   const renderNote = (note: Note, _index: number) => (
@@ -190,108 +170,34 @@ export const Sidebar: React.FC<SidebarProps> = ({
       >
         {/* Search */}
         <motion.div className="mb-3">
-          <form onSubmit={handleSearch} className="flex items-center space-x-2">
+          <div className="relative">
             <motion.input
               type="text"
-              value={localSearchQuery}
-              onChange={(e) => setLocalSearchQuery(e.target.value)}
+              value={searchQuery}
+              onChange={handleSearchChange}
               placeholder="Search notes..."
-              className="flex-1 px-3 py-2 text-sm bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full px-3 py-2 pl-10 text-sm bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
               whileFocus={{ scale: 1.02 }}
               transition={{ type: 'spring', stiffness: 300 }}
             />
-            <AnimatedButton
-              onClick={() => onSearch?.(localSearchQuery)}
-              size="sm"
-              icon={<Search className="w-4 h-4" />}
-            >
-              Search
-            </AnimatedButton>
-          </form>
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            {searchQuery && (
+              <button
+                onClick={clearFilters}
+                className="absolute inset-y-0 right-3 my-auto flex items-center text-gray-400 hover:text-white transition-colors"
+                aria-label="Clear search"
+              >
+                ×
+              </button>
+            )}
+          </div>
         </motion.div>
 
-        {/* Tag Filter */}
-        <motion.div className="relative">
-          <AnimatedButton
-            onClick={() => setShowTagFilter(!showTagFilter)}
-            variant={selectedTagIds.length > 0 ? 'primary' : 'ghost'}
-            size="sm"
-            icon={<Tag className="w-4 h-4" />}
-            iconPosition="right"
-            className="w-full justify-between"
-          >
-            <span>Filter by tags</span>
-            {selectedTagIds.length > 0 && (
-              <motion.span 
-                className="text-xs bg-blue-600 text-white px-2 py-1 rounded-full"
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ type: 'spring', stiffness: 400 }}
-              >
-                {selectedTagIds.length}
-              </motion.span>
-            )}
-            <motion.div
-              animate={{ rotate: showTagFilter ? 180 : 0 }}
-              transition={{ duration: 0.2 }}
-            >
-              <ChevronDown className="w-4 h-4" />
-            </motion.div>
-          </AnimatedButton>
-          
-          <AnimatePresence>
-            {showTagFilter && (
-              <motion.div 
-                className="absolute z-10 w-full mt-1 bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-3"
-                initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                transition={{ duration: 0.2 }}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-sm font-medium text-white">Filter by tags</h3>
-                  {selectedTagIds.length > 0 && (
-                    <AnimatedButton
-                      onClick={clearFilters}
-                      variant="ghost"
-                      size="sm"
-                      className="text-xs"
-                    >
-                      Clear all
-                    </AnimatedButton>
-                  )}
-                </div>
-                <div className="space-y-1 max-h-32 overflow-y-auto">
-                  {availableTags.length === 0 ? (
-                    <p className="text-xs text-gray-400">No tags available</p>
-                  ) : (
-                    availableTags.map(tag => (
-                      <motion.label 
-                        key={tag.id} 
-                        className="flex items-center space-x-2 cursor-pointer"
-                        whileHover={{ x: 2 }}
-                        transition={{ type: 'spring', stiffness: 300 }}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={selectedTagIds.includes(tag.id)}
-                          onChange={() => handleTagToggle(tag.id)}
-                          className="w-3 h-3 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500"
-                        />
-                        <span className="text-xs text-white">{tag.name}</span>
-                      </motion.label>
-                    ))
-                  )}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.div>
       </motion.div>
 
       {/* Notes List */}
       <motion.div 
-        className="flex-1 overflow-y-auto p-4"
+        className="flex-1 overflow-y-auto p-4 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-800 [&::-webkit-scrollbar-thumb]:bg-gray-600 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb:hover]:bg-gray-500"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.3 }}
@@ -313,19 +219,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <Search className="w-full h-full" />
               </motion.div>
               <p className="text-gray-400 text-sm">
-                {localSearchQuery || selectedTagIds.length > 0 
-                  ? 'No notes match your filters' 
+                {searchQuery 
+                  ? 'No notes match your search' 
                   : `No ${view} notes`
                 }
               </p>
-              {localSearchQuery && (
+              {searchQuery && (
                 <p className="text-gray-500 text-xs mt-1">
-                  Search: "{localSearchQuery}"
-                </p>
-              )}
-              {selectedTagIds.length > 0 && (
-                <p className="text-gray-500 text-xs mt-1">
-                  Filtered by tags
+                  Search: "{searchQuery}"
                 </p>
               )}
             </motion.div>

@@ -15,6 +15,7 @@ import { useTags } from './hooks/useTags';
 import { useAppState } from './hooks/useAppState';
 import { useNoteActions } from './hooks/useNoteActions';
 import { getCurrentNotes, findSelectedNote } from './utils/noteUtils';
+import { apiService } from './services/api';
 import type { Note } from './services/api';
 
 function App() {
@@ -82,11 +83,27 @@ function App() {
       if (isCreating) {
         const newNote = await noteActions.handleSaveNote(data, true);
         if (newNote) {
+          // Refetch notes after creating
+          if (currentView === 'active') {
+            fetchActiveNotes();
+          } else if (currentView === 'archived') {
+            fetchArchivedNotes();
+          } else {
+            fetchAllNotes();
+          }
           appState.handleNoteSelect(newNote.id);
           appState.handleGoHome();
         }
       } else if (selectedNoteId) {
         await noteActions.handleSaveNote(data, false, selectedNoteId);
+        // Refetch notes after updating
+        if (currentView === 'active') {
+          fetchActiveNotes();
+        } else if (currentView === 'archived') {
+          fetchArchivedNotes();
+        } else {
+          fetchAllNotes();
+        }
         appState.handleGoHome();
       }
     } catch (error) {
@@ -97,6 +114,14 @@ function App() {
   const handleDeleteNote = async (id: string) => {
     try {
       await noteActions.handleDeleteNote(id);
+      // Refetch notes after deleting
+      if (currentView === 'active') {
+        fetchActiveNotes();
+      } else if (currentView === 'archived') {
+        fetchArchivedNotes();
+      } else {
+        fetchAllNotes();
+      }
       appState.handleGoHome();
     } catch (error) {
       console.error('Error deleting note:', error);
@@ -106,6 +131,14 @@ function App() {
   const handleToggleArchive = async (id: string) => {
     try {
       await noteActions.handleToggleArchive(id);
+      // Refetch notes after archiving/unarchiving
+      if (currentView === 'active') {
+        fetchActiveNotes();
+      } else if (currentView === 'archived') {
+        fetchArchivedNotes();
+      } else {
+        fetchAllNotes();
+      }
       appState.handleGoHome();
     } catch (error) {
       console.error('Error toggling archive:', error);
@@ -123,13 +156,10 @@ function App() {
 
   const handleSearch = async (query: string) => {
     setSearchQuery(query);
-    // TODO: Implement search functionality
+    // The Sidebar component handles local filtering
   };
 
-  const handleTagFilter = async (tagIds: string[]) => {
-    setSelectedTagIds(tagIds);
-    // TODO: Implement tag filtering
-  };
+
 
   const handleNotesReorder = (_reorderedNotes: Note[]) => {
     // TODO: Implement notes reordering persistence
@@ -180,19 +210,16 @@ function App() {
             <div className="flex h-[calc(100vh-64px)]">
               {/* Sidebar */}
               <div className="w-80 flex-shrink-0 border-r border-gray-800">
-                <Sidebar
-                  notes={currentNotes}
-                  selectedNoteId={selectedNoteId}
-                  onNoteSelect={handleNoteSelect}
-                  view={currentView}
-                  searchQuery={searchQuery}
-                  selectedTagIds={selectedTagIds}
-                  onSearch={handleSearch}
-                  onTagFilter={handleTagFilter}
-                  availableTags={tags}
-                  loading={loading}
-                  onNotesReorder={handleNotesReorder}
-                />
+                                 <Sidebar
+                   notes={currentNotes}
+                   selectedNoteId={selectedNoteId}
+                   onNoteSelect={handleNoteSelect}
+                   view={currentView}
+                   searchQuery={searchQuery}
+                   onSearch={handleSearch}
+                   loading={loading}
+                   onNotesReorder={handleNotesReorder}
+                 />
               </div>
 
               {/* Main Content Area */}

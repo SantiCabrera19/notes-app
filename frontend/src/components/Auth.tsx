@@ -1,11 +1,24 @@
 import { useAuth } from '../hooks/useAuth'
 import { AnimatedButton } from './ui/AnimatedButton'
 import { LogOut, User, ChevronDown } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 export const Auth = () => {
   const { user, loading, signInWithGoogle, signOut } = useAuth()
   const [showDropdown, setShowDropdown] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  // Cerrar dropdown cuando se hace clic fuera
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowDropdown(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   if (loading) {
     return (
@@ -17,33 +30,32 @@ export const Auth = () => {
 
   if (user) {
     return (
-      <div className="relative">
+      <div className="relative" ref={dropdownRef}>
         <div 
-          className="flex items-center gap-2 bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 px-2 py-1 h-8 cursor-pointer hover:bg-gray-700/50 transition-all duration-200"
+          className="flex items-center gap-2 bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 px-3 py-1 h-8 cursor-pointer hover:bg-gray-700/50 transition-all duration-200"
           onClick={() => setShowDropdown(!showDropdown)}
-          onMouseEnter={() => setShowDropdown(true)}
-          onMouseLeave={() => setShowDropdown(false)}
         >
+          <span className="text-sm text-gray-300 font-medium truncate max-w-32">
+            {user.user_metadata?.full_name || user.email}
+          </span>
           {user.user_metadata?.avatar_url ? (
             <img 
               src={user.user_metadata.avatar_url} 
               alt={user.user_metadata?.full_name || user.email}
-              className="w-6 h-6 rounded-full border border-gray-600"
+              className="w-6 h-6 rounded-full border border-gray-600 flex-shrink-0"
             />
           ) : (
-            <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+            <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
               <User className="w-3 h-3 text-white" />
             </div>
           )}
-          <ChevronDown className={`w-3 h-3 text-gray-400 transition-transform duration-200 ${showDropdown ? 'rotate-180' : ''}`} />
+          <ChevronDown className={`w-3 h-3 text-gray-400 transition-transform duration-200 flex-shrink-0 ${showDropdown ? 'rotate-180' : ''}`} />
         </div>
 
         {/* Dropdown */}
         {showDropdown && (
           <div 
             className="absolute right-0 top-full mt-1 bg-gray-800 border border-gray-700 rounded-lg shadow-lg py-1 z-50 min-w-32"
-            onMouseEnter={() => setShowDropdown(true)}
-            onMouseLeave={() => setShowDropdown(false)}
           >
             <div className="px-3 py-2 border-b border-gray-700">
               <p className="text-xs text-gray-300 font-medium">

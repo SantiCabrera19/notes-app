@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, Reorder } from 'framer-motion';
 import { GripVertical } from 'lucide-react';
 import type { Note } from '../../services/api';
@@ -19,6 +19,11 @@ export const DraggableNoteList: React.FC<DraggableNoteListProps> = ({
   renderNote,
 }) => {
   const [items, setItems] = useState(notes);
+
+  // Sync internal items when the incoming list changes (e.g., search filter)
+  useEffect(() => {
+    setItems(notes);
+  }, [notes]);
 
   const handleReorder = (newOrder: Note[]) => {
     setItems(newOrder);
