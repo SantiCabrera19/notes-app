@@ -19,9 +19,8 @@ export const Logo: React.FC<LogoProps> = ({
   className = ''
 }) => {
   const [imageError, setImageError] = useState(false);
-
-  // Prefer transparent asset if available
-  const [currentSrc, setCurrentSrc] = useState('/n-logo-transparent.png');
+  // Use a single known-good public asset to avoid 404s in production
+  const [currentSrc] = useState('/n-logo.png');
 
   const handleImageLoad = () => {
     setImageError(false);
@@ -29,11 +28,6 @@ export const Logo: React.FC<LogoProps> = ({
 
   const handleImageError = () => {
     console.warn(`Failed to load logo from: ${currentSrc}`);
-    // Fallback to non-transparent asset once
-    if (currentSrc !== '/n-logo.png') {
-      setCurrentSrc('/n-logo.png');
-      return;
-    }
     setImageError(true);
   };
 

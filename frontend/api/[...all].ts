@@ -1,11 +1,24 @@
 import serverless from 'serverless-http';
 
-// Import the compiled Express app copied into the frontend during build
-const appModule = await import('../backend-dist/app.js');
-const app = appModule.default;
+let cachedApp: any = null;
+let cachedServerlessHandler: any = null;
+
+async function getServerlessHandler() {
+  if (!cachedServerlessHandler) {
+    if (!cachedApp) {
+      const mod = await import('../backend-dist/app.js');
+      cachedApp = mod.default;
+    }
+    cachedServerlessHandler = serverless(cachedApp);
+  }
+  return cachedServerlessHandler;
+}
 
 export const config = {
-  runtime: 'nodejs',
+  runtime: 'nodejs18.x',
 };
 
-export default serverless(app);
+export default async function handler(req: any, res: any) {
+  const sls = await getServerlessHandler();
+  return sls(req, res);
+}
