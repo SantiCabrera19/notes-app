@@ -9,12 +9,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Routes
-app.use('/api/notes', notesRouter);
-app.use('/api/tags', tagsRouter);
+// Routes (support both /api/* and root-level paths for serverless mounts)
+app.use(['/api/notes', '/notes'], notesRouter);
+app.use(['/api/tags', '/tags'], tagsRouter);
 
-// Health check
-app.get('/health', (_req, res) => {
+// Health check (support /health and /api/health)
+app.get(['/health', '/api/health'], (_req, res) => {
   res.json({ status: 'OK', message: 'Notes API is running' });
 });
 
