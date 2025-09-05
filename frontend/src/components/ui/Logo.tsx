@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 
 interface LogoProps {
@@ -19,17 +19,6 @@ export const Logo: React.FC<LogoProps> = ({
   className = ''
 }) => {
   const [imageError, setImageError] = useState(false);
-  // Use a single known-good public asset to avoid 404s in production
-  const [currentSrc] = useState('/n-logo.png');
-
-  const handleImageLoad = () => {
-    setImageError(false);
-  };
-
-  const handleImageError = () => {
-    console.warn(`Failed to load logo from: ${currentSrc}`);
-    setImageError(true);
-  };
 
   // Initial reset
   useEffect(() => {
@@ -38,33 +27,35 @@ export const Logo: React.FC<LogoProps> = ({
 
   const containerSize = sizeClasses[size];
 
-  if (imageError && !showFallback) {
-    return null;
-  }
+  // We now render an inline SVG by default. If showFallback=false and we somehow
+  // mark imageError, return null; otherwise show the SVG.
+  if (imageError && !showFallback) return null;
 
   return (
     <div className={`${containerSize} relative flex items-center justify-center ${className}`}>
-      {/* Always render the image; hide only if it errors */}
-      <img
-        src={currentSrc}
-        alt="Notes App Logo"
-        className={`${containerSize} object-contain select-none pointer-events-none ${imageError ? 'hidden' : ''}`}
-        onLoad={handleImageLoad}
-        onError={handleImageError}
-      />
-
-      {imageError && showFallback && (
-        <motion.div
-          className={`${containerSize} bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg`}
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.2 }}
-        >
-          <span className="text-white font-bold text-lg drop-shadow-lg">
-            N
-          </span>
-        </motion.div>
-      )}
+      {/* Inline SVG logo ensures it always renders in production */}
+      <motion.svg
+        width="100%"
+        height="100%"
+        viewBox="0 0 64 64"
+        className="select-none pointer-events-none"
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.2 }}
+      >
+        <defs>
+          <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#3b82f6"/>
+            <stop offset="100%" stopColor="#a855f7"/>
+          </linearGradient>
+        </defs>
+        <rect x="4" y="4" width="56" height="56" rx="12" fill="url(#g)" />
+        <path
+          d="M20 44 V20 h6 l12 16 V20 h6 v24 h-6 L26 28 v16z"
+          fill="#fff"
+          fillOpacity="0.95"
+        />
+      </motion.svg>
     </div>
   );
 };
