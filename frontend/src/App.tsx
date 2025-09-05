@@ -5,6 +5,7 @@ import { AppContent } from './components/AppContent';
 import { AuthCallback } from './components/AuthCallback';
 import { AnimatedBackground } from './components/ui/AnimatedBackground';
 import { SuccessMessage } from './components/ui/SuccessMessage';
+import { Footer } from './components/ui/Footer';
 import { useTags } from './hooks/useTags';
 import { useAppState } from './hooks/useAppStateReducer';
 import { useNotesManager } from './hooks/useNotesManager';
@@ -135,6 +136,8 @@ function App() {
               clearError={clearError}
               clearTagsError={clearTagsError}
             />
+            {/* Footer */}
+            <Footer />
           </AnimatedBackground>
         } />
         

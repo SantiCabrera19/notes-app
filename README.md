@@ -1,5 +1,7 @@
 # 📝 Notes App - Full Stack Implementation
 
+> Live demo: https://notes-app-flax-eight.vercel.app/
+
 A modern, full-stack web application for taking notes, tagging, and filtering them. Built with React, Node.js, TypeScript, and PostgreSQL.
 
 ## 🚀 Quick Start

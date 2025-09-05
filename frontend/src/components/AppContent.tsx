@@ -3,7 +3,7 @@ import { Sidebar } from './Sidebar';
 import { NoteEditor } from './NoteEditor';
 import { NoteViewer } from './NoteViewer';
 import { Dashboard } from './ui/Dashboard';
-import { LoadingSpinner } from './ui/LoadingSpinner';
+import { SidebarSkeleton, DashboardSkeleton } from './ui/Skeleton';
 import { ErrorMessage } from './ui/ErrorMessage';
 import { getCurrentNotes, findSelectedNote } from '../utils/noteUtils';
 import type { Note, Tag } from '../services/api';
@@ -124,79 +124,86 @@ export const AppContent = memo<AppContentProps>(({
   };
 
   return (
-    <div className="flex h-[calc(100vh-64px)]">
+    <div className="flex flex-col md:flex-row min-h-[calc(100vh-64px)]">
       {/* Sidebar */}
-      <div className="w-80 flex-shrink-0 border-r border-gray-800">
-        <Sidebar
-          notes={currentNotes}
-          selectedNoteId={selectedNoteId}
-          onNoteSelect={onNoteSelect}
-          view={currentView}
-          searchQuery={searchQuery}
-          onSearch={onSearch}
-          loading={loading}
-          onNotesReorder={onNotesReorder}
-        />
+      <div className="w-full md:w-80 md:flex-shrink-0 border-b md:border-b-0 md:border-r border-gray-800 max-h-[40vh] md:max-h-none overflow-auto md:overflow-visible">
+        {loading ? (
+          <SidebarSkeleton />
+        ) : (
+          <Sidebar
+            notes={currentNotes}
+            selectedNoteId={selectedNoteId}
+            onNoteSelect={onNoteSelect}
+            view={currentView}
+            searchQuery={searchQuery}
+            onSearch={onSearch}
+            loading={loading}
+            onNotesReorder={onNotesReorder}
+          />
+        )}
       </div>
 
       {/* Main Content Area */}
-      <main className="flex-1 bg-gray-900/50 backdrop-blur-sm overflow-hidden">
-        {/* Loading State */}
-        {loading && <LoadingSpinner className="h-full" />}
+      <main className="flex-1 bg-gray-900/50 backdrop-blur-sm overflow-auto scroll-smooth">
+        {loading ? (
+          <DashboardSkeleton />
+        ) : (
+          <>
+            {/* Error State */}
+            {(error || tagsError) && (
+              <ErrorMessage 
+                error={error || tagsError} 
+                onClose={() => { 
+                  clearError(); 
+                  clearTagsError(); 
+                }}
+                className="m-4"
+              />
+            )}
 
-        {/* Error State */}
-        {(error || tagsError) && (
-          <ErrorMessage 
-            error={error || tagsError} 
-            onClose={() => { 
-              clearError(); 
-              clearTagsError(); 
-            }}
-            className="m-4"
-          />
-        )}
+            {/* Welcome State */}
+            {!selectedNoteId && !isCreating && !showDashboard && (
+              <WelcomeScreen onCreateNote={onGoHome} />
+            )}
 
-        {/* Welcome State */}
-        {!loading && !selectedNoteId && !isCreating && !showDashboard && (
-          <WelcomeScreen onCreateNote={onGoHome} />
-        )}
+            {/* Dashboard */}
+            {showDashboard && (
+              <Dashboard 
+                notes={[...(activeNotes || []), ...(archivedNotes || [])]} 
+                tags={tags} 
+                loading={false}
+              />
+            )}
 
-        {/* Dashboard */}
-        {showDashboard && (
-          <Dashboard 
-            notes={[...(activeNotes || []), ...(archivedNotes || [])]} 
-            tags={tags} 
-            loading={loading}
-          />
-        )}
+            {/* Note Viewer */}
+            {isViewing && selectedNote && (
+              <NoteViewer
+                note={selectedNote}
+                availableTags={tags}
+                onEdit={onEditNote}
+                onBack={onGoHome}
+                onDelete={handleDeleteNote}
+                onToggleArchive={handleToggleArchive}
+              />
+            )}
 
-        {/* Note Viewer */}
-        {isViewing && selectedNote && (
-          <NoteViewer
-            note={selectedNote}
-            availableTags={tags}
-            onEdit={onEditNote}
-            onBack={onGoHome}
-            onDelete={handleDeleteNote}
-            onToggleArchive={handleToggleArchive}
-          />
-        )}
-
-        {/* Note Editor */}
-        {(selectedNoteId || isCreating) && !showDashboard && !isViewing && (
-          <NoteEditor
-            note={selectedNote}
-            isCreating={isCreating}
-            onSave={handleSaveNote}
-            onCancel={onCancelEdit}
-            onDelete={handleDeleteNote}
-            onToggleArchive={handleToggleArchive}
-            availableTags={tags}
-            onCreateTag={onCreateTag}
-            onSaveSuccess={onSaveSuccess}
-            onGoHome={onGoHome}
-            onView={() => selectedNote && onViewNote(selectedNote.id)}
-          />
+            {/* Note Editor */}
+            {(selectedNoteId || isCreating) && !showDashboard && !isViewing && (
+              <NoteEditor
+                note={selectedNote}
+                isCreating={isCreating}
+                onSave={handleSaveNote}
+                onCancel={onCancelEdit}
+                onDelete={handleDeleteNote}
+                onToggleArchive={handleToggleArchive}
+                availableTags={tags}
+                onCreateTag={onCreateTag}
+                onSaveSuccess={onSaveSuccess}
+                onGoHome={onGoHome}
+                onView={() => selectedNote && onViewNote(selectedNote.id)}
+              />
+            )}
+          </>
         )}
       </main>
     </div>

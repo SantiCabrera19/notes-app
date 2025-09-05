@@ -34,7 +34,7 @@ interface StatCardProps {
 
 const StatCard: React.FC<StatCardProps> = ({ title, value, icon, color, description }) => (
   <motion.div
-    className="bg-gray-800 rounded-lg p-6 border border-gray-700"
+    className="bg-gray-800 rounded-lg p-4 md:p-6 border border-gray-700"
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
     whileHover={{ scale: 1.02, y: -2 }}
@@ -42,13 +42,13 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, icon, color, descript
   >
     <div className="flex items-center justify-between">
       <div>
-        <p className="text-sm font-medium text-gray-400">{title}</p>
-        <p className="text-2xl font-bold text-white mt-1">{value}</p>
+        <p className="text-xs md:text-sm font-medium text-gray-400">{title}</p>
+        <p className="text-xl md:text-2xl font-bold text-white mt-1">{value}</p>
         {description && (
           <p className="text-xs text-gray-500 mt-1">{description}</p>
         )}
       </div>
-      <div className={`p-3 rounded-lg ${color}`}>
+      <div className={`p-2 md:p-3 rounded-lg ${color}`}>
         {icon}
       </div>
     </div>
@@ -60,16 +60,16 @@ const RecentNotes: React.FC<{ notes: Note[] }> = ({ notes }) => {
 
   return (
     <motion.div
-      className="bg-gray-800 rounded-lg p-6 border border-gray-700"
+      className="bg-gray-800 rounded-lg p-4 md:p-6 border border-gray-700 max-h-[50vh] md:max-h-none overflow-auto md:overflow-visible"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.2 }}
     >
       <div className="flex items-center space-x-2 mb-4">
         <Clock className="w-5 h-5 text-blue-400" />
-        <h3 className="text-lg font-semibold text-white">Recent Notes</h3>
+        <h3 className="text-base md:text-lg font-semibold text-white">Recent Notes</h3>
       </div>
-      <div className="space-y-3">
+      <div className="space-y-3 pr-1">
         {recentNotes.length === 0 ? (
           <p className="text-gray-400 text-sm">No notes yet</p>
         ) : (
@@ -81,8 +81,8 @@ const RecentNotes: React.FC<{ notes: Note[] }> = ({ notes }) => {
               transition={{ type: 'spring', stiffness: 300 }}
             >
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-white truncate">{note.title}</p>
-                <p className="text-xs text-gray-400 truncate">{note.content}</p>
+                <p className="text-sm md:text-base font-medium text-white truncate">{note.title}</p>
+                <p className="text-xs md:text-sm text-gray-400 truncate">{note.content}</p>
               </div>
               <div className="flex items-center space-x-2 ml-3">
                 {note.tags && note.tags.length > 0 && (
@@ -107,16 +107,16 @@ const PopularTags: React.FC<{ tags: TagType[]; notes: Note[] }> = ({ tags, notes
 
   return (
     <motion.div
-      className="bg-gray-800 rounded-lg p-6 border border-gray-700"
+      className="bg-gray-800 rounded-lg p-4 md:p-6 border border-gray-700 max-h-[50vh] md:max-h-none overflow-auto md:overflow-visible"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.3 }}
     >
       <div className="flex items-center space-x-2 mb-4">
         <Star className="w-5 h-5 text-yellow-400" />
-        <h3 className="text-lg font-semibold text-white">Popular Tags</h3>
+        <h3 className="text-base md:text-lg font-semibold text-white">Popular Tags</h3>
       </div>
-      <div className="space-y-3">
+      <div className="space-y-3 pr-1">
         {tagUsage.length === 0 ? (
           <p className="text-gray-400 text-sm">No tags yet</p>
         ) : (
@@ -196,18 +196,18 @@ export const Dashboard: React.FC<DashboardProps> = ({ notes, tags, loading = fal
   ];
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 md:p-6 space-y-4 md:space-y-6">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <h1 className="text-3xl font-bold text-white mb-2">Dashboard</h1>
-        <p className="text-gray-400">Overview of your notes and activity</p>
+        <h1 className="text-2xl md:text-3xl font-bold text-white mb-1 md:mb-2">Dashboard</h1>
+        <p className="text-gray-400 text-sm md:text-base">Overview of your notes and activity</p>
       </motion.div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
         {stats.map((stat, _index) => (
           <StatCard
             key={stat.title}
@@ -221,10 +221,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ notes, tags, loading = fal
       </div>
 
       {/* Recent Notes and Popular Tags */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
         <RecentNotes notes={notes} />
         <PopularTags tags={tags} notes={notes} />
       </div>
     </div>
   );
-}; 
+};
