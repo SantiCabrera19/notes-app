@@ -9,6 +9,11 @@ interface VercelResponse {
   end: (chunk?: any) => void;
 }
 
+// Explicitly set the Node.js runtime version for this function
+export const config = {
+  runtime: 'nodejs20.x',
+};
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'GET') {
     res.setHeader('Allow', 'GET');
