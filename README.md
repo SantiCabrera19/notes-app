@@ -1,16 +1,30 @@
-# Notes App
+# 📝 Notes App
 
-A full-stack notes application built with React, TypeScript, Prisma, and deployed on Vercel.
+> **Live Demo**: [https://notes-app-flax-eight.vercel.app/](https://notes-app-flax-eight.vercel.app/)
 
-## Architecture
+A modern, full-stack notes application built with React, TypeScript, Prisma, and deployed on Vercel. Create, organize, and manage your notes with advanced tagging, search, and filtering capabilities.
 
-This is a single-app fullstack project with:
-- **Frontend**: React + TypeScript + Vite + Tailwind CSS
-- **Backend**: Serverless API routes in `/api` folder
+## 🚀 Features
+
+- ✅ **Create, edit, and delete notes** with rich markdown support
+- ✅ **Archive/unarchive notes** for better organization
+- ✅ **Advanced tagging system** with multi-tag filtering
+- ✅ **Real-time search** across titles and content
+- ✅ **Responsive design** - works on desktop and mobile
+- ✅ **Dark theme** with modern UI/UX
+- ✅ **Google OAuth authentication** via Supabase
+- ✅ **Serverless architecture** for optimal performance
+
+## 🏗️ Architecture
+
+This is a unified full-stack project with:
+- **Frontend**: React 18 + TypeScript + Vite + Tailwind CSS
+- **Backend**: Serverless API routes in `/api` folder  
 - **Database**: PostgreSQL with Prisma ORM
+- **Authentication**: Supabase Auth + Google OAuth
 - **Deployment**: Vercel
 
-## Project Structure
+## 📁 Project Structure
 
 ```
 notes-app/
@@ -28,10 +42,10 @@ notes-app/
 ├── src/                   # React frontend
 │   ├── components/        # React components
 │   ├── hooks/             # Custom React hooks
-│   ├── pages/             # Page components
 │   └── services/          # API client
 ├── .env                   # Environment variables
 ├── package.json
+├── vite.config.ts         # Vite configuration
 └── vercel.json            # Vercel deployment config
 ```
 
@@ -83,7 +97,7 @@ notes-app/
 - `PUT /api/tags/:id` - Update a tag
 - `DELETE /api/tags/:id` - Delete a tag
 
-## Scripts
+## 🛠️ Scripts
 
 - `npm run dev` - Start development server
 - `npm run build` - Build for production
@@ -93,7 +107,7 @@ notes-app/
 - `npm run db:migrate` - Run database migrations
 - `npm run db:studio` - Open Prisma Studio
 
-## Deployment
+## 🌐 Deployment
 
 This app is configured for deployment on Vercel:
 
@@ -103,31 +117,37 @@ This app is configured for deployment on Vercel:
 
 The app will automatically build and deploy with serverless functions.
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🔧 Environment Variables
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Create a `.env` file in the root directory:
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```env
+# Database
+DATABASE_URL="your_postgresql_connection_string"
+DIRECT_URL="your_direct_postgresql_connection_string"
+
+# Supabase (for authentication)
+SUPABASE_URL="your_supabase_project_url"
+SUPABASE_ANON_KEY="your_supabase_anon_key"
+
+# Frontend Supabase
+VITE_SUPABASE_URL="your_supabase_project_url"
+VITE_SUPABASE_ANON_KEY="your_supabase_anon_key"
 ```
+
+## 👨‍💻 Author
+
+**Santiago Cabrera** - Full Stack Developer
+
+- **Portfolio**: [https://portfolio-santiago-ten.vercel.app/](https://portfolio-santiago-ten.vercel.app/)
+- **GitHub**: [@SantiCabrera19](https://github.com/SantiCabrera19)
+- **LinkedIn**: [Santiago Emanuel Cabrera](https://www.linkedin.com/in/santiago-emanuel-cabrera-0a1120238/)
+- **Email**: santiagocabrera.dev@gmail.com
+
+## 📄 License
+
+MIT License - Feel free to use this project as inspiration for your own notes app!
+
+---
+
+⭐ **Star this repo if you found it helpful!**
