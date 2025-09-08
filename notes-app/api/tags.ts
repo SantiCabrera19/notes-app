@@ -1,0 +1,94 @@
+interface VercelRequest {
+  method?: string;
+  query: { [key: string]: string | string[] | undefined };
+  body: any;
+}
+
+interface VercelResponse {
+  json: (object: any) => VercelResponse;
+  status: (code: number) => VercelResponse;
+  setHeader: (name: string, value: string) => void;
+  end: (chunk?: any) => void;
+}
+import { TagService } from '../lib/services/TagService';
+import { CreateTagRequest, UpdateTagRequest } from '../lib/models/Tag';
+
+const tagService = new TagService();
+
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  // Enable CORS
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+  const { method } = req;
+
+  try {
+    switch (method) {
+      case 'GET':
+        if (req.query.id) {
+          // GET /api/tags/:id
+          const tag = await tagService.getTagById(req.query.id as string);
+          if (!tag) {
+            return res.status(404).json({ error: 'Tag not found' });
+          }
+          return res.json(tag);
+        } else {
+          // GET /api/tags
+          const tags = await tagService.getAllTags();
+          return res.json(tags);
+        }
+
+      case 'POST':
+        // POST /api/tags
+        const createData: CreateTagRequest = req.body;
+        const newTag = await tagService.createTag(createData);
+        return res.status(201).json(newTag);
+
+      case 'PUT':
+        // PUT /api/tags/:id
+        if (!req.query.id) {
+          return res.status(400).json({ error: 'Tag ID is required' });
+        }
+        const updateData: UpdateTagRequest = req.body;
+        const updatedTag = await tagService.updateTag(req.query.id as string, updateData);
+        if (!updatedTag) {
+          return res.status(404).json({ error: 'Tag not found' });
+        }
+        return res.json(updatedTag);
+
+      case 'DELETE':
+        // DELETE /api/tags/:id
+        if (!req.query.id) {
+          return res.status(400).json({ error: 'Tag ID is required' });
+        }
+        const success = await tagService.deleteTag(req.query.id as string);
+        if (!success) {
+          return res.status(404).json({ error: 'Tag not found' });
+        }
+        return res.status(204).end();
+
+      default:
+        res.setHeader('Allow', 'GET, POST, PUT, DELETE');
+        return res.status(405).end(`Method ${method} Not Allowed`);
+    }
+  } catch (error) {
+    console.error('Error in tags API:', error);
+    if (error instanceof Error) {
+      if (error.message === 'Tag name is required') {
+        return res.status(400).json({ error: error.message });
+      } else if (error.message === 'Tag already exists') {
+        return res.status(409).json({ error: error.message });
+      } else if (error.message === 'Tag not found') {
+        return res.status(404).json({ error: error.message });
+      } else if (error.message === 'Tag name already exists') {
+        return res.status(409).json({ error: error.message });
+      }
+    }
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+}
