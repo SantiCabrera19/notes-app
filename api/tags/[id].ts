@@ -10,50 +10,63 @@ interface VercelResponse {
   setHeader: (name: string, value: string) => void;
   end: (chunk?: any) => void;
 }
-import { TagService } from '../lib/services/TagService';
-import { CreateTagRequest, UpdateTagRequest } from '../lib/models/Tag';
+
+import { TagService } from '../../lib/services/TagService';
+import { UpdateTagRequest } from '../../lib/models/Tag';
 
 const tagService = new TagService();
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Enable CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   
   if (req.method === 'OPTIONS') {
     res.status(200).end();
     return;
   }
+
   const { method } = req;
+  const id = req.query.id as string;
+
+  if (!id) {
+    return res.status(400).json({ error: 'Tag ID is required' });
+  }
 
   try {
     switch (method) {
       case 'GET':
-        // GET /api/tags - only collection operations
-        const tags = await tagService.getAllTags();
-        return res.json(tags);
-
-      case 'POST':
-        // POST /api/tags
-        const createData: CreateTagRequest = req.body;
-        const newTag = await tagService.createTag(createData);
-        return res.status(201).json(newTag);
+        // GET /api/tags/[id]
+        const tag = await tagService.getTagById(id);
+        if (!tag) {
+          return res.status(404).json({ error: 'Tag not found' });
+        }
+        return res.json(tag);
 
       case 'PUT':
-        // PUT /api/tags - not supported at collection level
-        return res.status(400).json({ error: 'PUT method not supported for collection. Use /api/tags/[id]' });
+        // PUT /api/tags/[id]
+        const updateData: UpdateTagRequest = req.body;
+        const updatedTag = await tagService.updateTag(id, updateData);
+        if (!updatedTag) {
+          return res.status(404).json({ error: 'Tag not found' });
+        }
+        return res.json(updatedTag);
 
       case 'DELETE':
-        // DELETE /api/tags - not supported at collection level
-        return res.status(400).json({ error: 'DELETE method not supported for collection. Use /api/tags/[id]' });
+        // DELETE /api/tags/[id]
+        const success = await tagService.deleteTag(id);
+        if (!success) {
+          return res.status(404).json({ error: 'Tag not found' });
+        }
+        return res.status(204).end();
 
       default:
-        res.setHeader('Allow', 'GET, POST');
+        res.setHeader('Allow', 'GET, PUT, DELETE');
         return res.status(405).end(`Method ${method} Not Allowed`);
     }
   } catch (error) {
-    console.error('Error in tags API:', error);
+    console.error('Error in tags/[id] API:', error);
     if (error instanceof Error) {
       if (error.message === 'Tag name is required') {
         return res.status(400).json({ error: error.message });
