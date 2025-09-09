@@ -6,47 +6,55 @@ A modern, full-stack notes application built with React, TypeScript, Prisma, and
 
 ## 🚀 Features
 
-- ✅ **Create, edit, and delete notes** with rich markdown support
-- ✅ **Archive/unarchive notes** for better organization
-- ✅ **Advanced tagging system** with multi-tag filtering
-- ✅ **Real-time search** across titles and content
-- ✅ **Responsive design** - works on desktop and mobile
-- ✅ **Dark theme** with modern UI/UX
-- ✅ **Google OAuth authentication** via Supabase
-- ✅ **Serverless architecture** for optimal performance
+- ✅ **Create, edit, delete** notes with Markdown-ready content
+- ✅ **Archive / Unarchive** notes with 1-click toggle
+- ✅ **Tags** with multi-select filtering and popular tags widget
+- ✅ **Search** across titles and content with archived filter
+- ✅ **Dashboard** with stats, recent notes and popular tags
+- ✅ **Authentication (Google OAuth)** via Supabase
+- ✅ **User isolation**: cada usuario ve y opera solo sus notas
+- ✅ **Modern UI/UX**: dark theme, responsive, animaciones
+- ✅ **Serverless-friendly** APIs listas para Vercel
 
 ## 🏗️ Architecture
 
-This is a unified full-stack project with:
+Unified full‑stack design:
 - **Frontend**: React 18 + TypeScript + Vite + Tailwind CSS
-- **Backend**: Serverless API routes in `/api` folder  
-- **Database**: PostgreSQL with Prisma ORM
-- **Authentication**: Supabase Auth + Google OAuth
-- **Deployment**: Vercel
+- **Backend**: API handlers TypeScript en `api/` ejecutados directamente en dev mediante un **Vite plugin** que intercepta `/api/*` y expone `res.json`/`res.status`.
+- **Database**: PostgreSQL (Supabase) con Prisma ORM
+- **Auth**: Supabase Auth (Google OAuth)
+- **Deploy**: Vercel (static frontend + serverless functions)
 
 ## 📁 Project Structure
 
 ```
 notes-app/
-├── api/                    # Serverless API endpoints
-│   ├── health.ts          # Health check endpoint
-│   ├── notes.ts           # Notes CRUD operations
-│   └── tags.ts            # Tags CRUD operations
-├── lib/                   # Backend business logic
-│   ├── models/            # TypeScript interfaces
-│   ├── repositories/      # Data access layer
-│   └── services/          # Business logic layer
-├── prisma/                # Database schema and migrations
-│   └── schema.prisma
-├── public/                # Static assets
-├── src/                   # React frontend
-│   ├── components/        # React components
-│   ├── hooks/             # Custom React hooks
-│   └── services/          # API client
-├── .env                   # Environment variables
-├── package.json
-├── vite.config.ts         # Vite configuration
-└── vercel.json            # Vercel deployment config
+├── api/                        # API handlers (serverless-ready)
+│   ├── health.ts               # Health check
+│   ├── notes.ts                # Colección de notas
+│   └── notes/[id].ts           # Recurso individual (GET/PUT/PATCH/DELETE)
+│
+├── lib/                        # Backend domain
+│   ├── middleware/
+│   │   └── auth.ts             # authenticateUser / requireAuth
+│   ├── models/                 # Tipos y contratos
+│   ├── repositories/           # Acceso a datos (Prisma)
+│   └── services/               # Lógica de negocio
+│
+├── prisma/                     # Esquema y migraciones
+│   ├── schema.prisma
+│   └── migrations/
+│
+├── src/                        # Frontend React
+│   ├── components/
+│   │   └── ui/Footer.tsx       # Footer con enlaces productivos
+│   ├── hooks/
+│   └── services/api.ts         # API client con headers de auth
+│
+├── vite.config.ts              # Vite + plugin para enrutar /api/* en dev
+├── vercel.json                 # Configuración de despliegue
+├── .env.example                # Variables de entorno de referencia
+└── package.json
 ```
 
 ## Getting Started
@@ -86,16 +94,20 @@ notes-app/
 
 ## API Endpoints
 
-- `GET /api/health` - Health check
-- `GET /api/notes` - Get all active notes
-- `GET /api/notes?archived=true` - Get archived notes
-- `POST /api/notes` - Create a new note
-- `PUT /api/notes/:id` - Update a note
-- `DELETE /api/notes/:id` - Delete a note
-- `GET /api/tags` - Get all tags
-- `POST /api/tags` - Create a new tag
-- `PUT /api/tags/:id` - Update a tag
-- `DELETE /api/tags/:id` - Delete a tag
+- `GET /api/health` — Health check
+
+- `GET /api/notes` — Notas activas del usuario autenticado
+- `GET /api/notes?archived=true` — Notas archivadas
+- `GET /api/notes?q=search&archived=false` — Búsqueda por texto + filtro de archivado
+- `GET /api/notes?tagIds=id1,id2&archived=false` — Filtrado por múltiples tags
+- `POST /api/notes` — Crear nota (requiere auth)
+
+- `GET /api/notes/:id` — Obtener una nota (auth + ownership)
+- `PUT /api/notes/:id` — Actualizar una nota (auth + ownership)
+- `PATCH /api/notes/:id?action=toggle-archive` — Alternar archivado (auth + ownership)
+- `DELETE /api/notes/:id` — Borrar una nota (auth + ownership)
+
+- `GET /api/tags` — Listado de tags del usuario
 
 ## 🛠️ Scripts
 
@@ -107,33 +119,40 @@ notes-app/
 - `npm run db:migrate` - Run database migrations
 - `npm run db:studio` - Open Prisma Studio
 
+## 🔐 Authentication & Authorization
+
+- Autenticación con **Supabase Auth** (Google OAuth).
+- En cada request, el backend intenta validar `Authorization: Bearer <token>` con Supabase (`authenticateUser`).
+- Las operaciones de escritura y lectura de recursos individuales verifican propiedad por `userId` (`requireAuth`).
+- En frontend, `AuthGuard` y `useAuth` protegen las acciones sensibles.
+
 ## 🌐 Deployment
 
-This app is configured for deployment on Vercel:
-
-1. Connect your repository to Vercel
-2. Set environment variables in Vercel dashboard
-3. Deploy
-
-The app will automatically build and deploy with serverless functions.
+Optimizada para **Vercel**:
+- Conectá el repo a Vercel
+- Configurá Variables de Entorno (Production/Preview)
+- Cada push a la rama principal dispara un deployment
 
 ## 🔧 Environment Variables
 
-Create a `.env` file in the root directory:
+Creá tu `.env` local a partir de `.env.example` y configurá lo mismo en Vercel:
 
 ```env
-# Database
-DATABASE_URL="your_postgresql_connection_string"
-DIRECT_URL="your_direct_postgresql_connection_string"
+# Frontend base URL (usada para redirects de OAuth)
+VITE_APP_URL="https://notes-app-<your-subdomain>.vercel.app"
 
-# Supabase (for authentication)
-SUPABASE_URL="your_supabase_project_url"
-SUPABASE_ANON_KEY="your_supabase_anon_key"
+# Supabase (Auth)
+VITE_SUPABASE_URL="https://<project>.supabase.co"
+VITE_SUPABASE_ANON_KEY="<anon-key>"
 
-# Frontend Supabase
-VITE_SUPABASE_URL="your_supabase_project_url"
-VITE_SUPABASE_ANON_KEY="your_supabase_anon_key"
+# Database (Prisma)
+DATABASE_URL="postgresql://user:pass@host:5432/db"
+DIRECT_URL="postgresql://user:pass@host:5432/db"
 ```
+
+Supabase OAuth Redirects recomendados:
+- `https://<your-domain>/api/auth/callback`
+- `https://<your-domain>`
 
 ## 👨‍💻 Author
 
