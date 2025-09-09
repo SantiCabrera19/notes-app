@@ -161,7 +161,6 @@ Supabase OAuth Redirects recomendados:
 - **Portfolio**: [https://portfolio-santiago-ten.vercel.app/](https://portfolio-santiago-ten.vercel.app/)
 - **GitHub**: [@SantiCabrera19](https://github.com/SantiCabrera19)
 - **LinkedIn**: [Santiago Emanuel Cabrera](https://www.linkedin.com/in/santiago-emanuel-cabrera-0a1120238/)
-- **Email**: santiagocabrera.dev@gmail.com
 
 ## 📄 License
 
