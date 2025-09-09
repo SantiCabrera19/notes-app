@@ -1,5 +1,5 @@
 import React from 'react';
-import { Github, Linkedin, Mail, Globe } from 'lucide-react';
+import { Github, Linkedin, Globe } from 'lucide-react';
 import { Logo } from './Logo';
 
 export const Footer: React.FC = () => {
@@ -23,13 +23,13 @@ export const Footer: React.FC = () => {
             <h4 className="text-sm font-semibold text-gray-300 mb-3">Enlaces</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <a href="#" className="text-gray-400 hover:text-gray-200 transition-colors">Inicio</a>
+                <span className="text-gray-500 cursor-default">Inicio</span>
               </li>
               <li>
-                <a href="#" className="text-gray-400 hover:text-gray-200 transition-colors">Dashboard</a>
+                <span className="text-gray-500 cursor-default">Dashboard</span>
               </li>
               <li>
-                <a href="#" className="text-gray-400 hover:text-gray-200 transition-colors">Notas</a>
+                <span className="text-gray-500 cursor-default">Notas</span>
               </li>
             </ul>
           </div>
@@ -42,10 +42,10 @@ export const Footer: React.FC = () => {
                 <a href="https://github.com/SantiCabrera19/notes-app" target="_blank" rel="noreferrer" className="text-gray-400 hover:text-gray-200 transition-colors">Repositorio</a>
               </li>
               <li>
-                <a href="#" className="text-gray-400 hover:text-gray-200 transition-colors">Changelog</a>
+                <a href="https://github.com/SantiCabrera19/notes-app/releases" target="_blank" rel="noreferrer" className="text-gray-400 hover:text-gray-200 transition-colors">Changelog</a>
               </li>
               <li>
-                <a href="#" className="text-gray-400 hover:text-gray-200 transition-colors">Soporte</a>
+                <a href="https://github.com/SantiCabrera19/notes-app/discussions" target="_blank" rel="noreferrer" className="text-gray-400 hover:text-gray-200 transition-colors">Soporte</a>
               </li>
             </ul>
           </div>
@@ -71,13 +71,6 @@ export const Footer: React.FC = () => {
                 aria-label="LinkedIn"
               >
                 <Linkedin className="w-4 h-4" />
-              </a>
-              <a
-                href="mailto:"
-                className="p-2 rounded-md bg-gray-900/60 border border-gray-800 text-gray-300 hover:text-white hover:bg-gray-800 transition-colors"
-                aria-label="Email"
-              >
-                <Mail className="w-4 h-4" />
               </a>
               <a
                 href="https://notes-app-flax-eight.vercel.app/"

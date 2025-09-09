@@ -4,9 +4,19 @@ import { Note, CreateNoteRequest, UpdateNoteRequest } from '../models/Note';
 const prisma = new PrismaClient();
 
 export class NoteRepository {
-  async findAll(archived?: boolean): Promise<Note[]> {
+  async findAll(archived?: boolean, userId?: string): Promise<Note[]> {
+    const whereClause: any = {};
+    
+    if (archived !== undefined) {
+      whereClause.isArchived = archived;
+    }
+    
+    if (userId) {
+      whereClause.userId = userId;
+    }
+    
     return await prisma.note.findMany({
-      where: archived !== undefined ? { isArchived: archived } : {},
+      where: whereClause,
       include: {
         tags: true,
       },
@@ -16,21 +26,28 @@ export class NoteRepository {
     });
   }
 
-  async findById(id: string): Promise<Note | null> {
+  async findById(id: string, userId?: string): Promise<Note | null> {
+    const whereClause: any = { id };
+    
+    if (userId) {
+      whereClause.userId = userId;
+    }
+    
     return await prisma.note.findUnique({
-      where: { id },
+      where: whereClause,
       include: {
         tags: true,
       },
     });
   }
 
-  async create(data: CreateNoteRequest): Promise<Note> {
+  async create(data: CreateNoteRequest, userId: string): Promise<Note> {
     const { tagIds, ...noteData } = data;
     
     return await prisma.note.create({
       data: {
         ...noteData,
+        userId,
         tags: tagIds && tagIds.length > 0 ? {
           connect: tagIds.map(id => ({ id })),
         } : undefined,
@@ -41,11 +58,14 @@ export class NoteRepository {
     });
   }
 
-  async update(id: string, data: UpdateNoteRequest): Promise<Note | null> {
+  async update(id: string, data: UpdateNoteRequest, userId: string): Promise<Note | null> {
     const { tagIds, ...noteData } = data;
     
     return await prisma.note.update({
-      where: { id },
+      where: { 
+        id,
+        userId // Only update notes owned by this user
+      },
       data: {
         ...noteData,
         tags: tagIds ? {
@@ -58,10 +78,13 @@ export class NoteRepository {
     });
   }
 
-  async delete(id: string): Promise<boolean> {
+  async delete(id: string, userId: string): Promise<boolean> {
     try {
       await prisma.note.delete({
-        where: { id },
+        where: { 
+          id,
+          userId // Only delete notes owned by this user
+        },
       });
       return true;
     } catch (error) {
@@ -69,12 +92,15 @@ export class NoteRepository {
     }
   }
 
-  async toggleArchive(id: string): Promise<Note | null> {
-    const note = await this.findById(id);
+  async toggleArchive(id: string, userId: string): Promise<Note | null> {
+    const note = await this.findById(id, userId);
     if (!note) return null;
 
     return await prisma.note.update({
-      where: { id },
+      where: { 
+        id,
+        userId // Only toggle notes owned by this user
+      },
       data: {
         isArchived: !note.isArchived,
       },
@@ -84,21 +110,30 @@ export class NoteRepository {
     });
   }
 
-  async findByTags(tagIds: string[], archived?: boolean): Promise<Note[]> {
-    return await prisma.note.findMany({
-      where: {
-        AND: [
-          archived !== undefined ? { isArchived: archived } : {},
-          {
-            tags: {
-              some: {
-                id: {
-                  in: tagIds,
-                },
-              },
+  async findByTags(tagIds: string[], archived?: boolean, userId?: string): Promise<Note[]> {
+    const whereConditions: any[] = [
+      {
+        tags: {
+          some: {
+            id: {
+              in: tagIds,
             },
           },
-        ],
+        },
+      },
+    ];
+    
+    if (archived !== undefined) {
+      whereConditions.push({ isArchived: archived });
+    }
+    
+    if (userId) {
+      whereConditions.push({ userId });
+    }
+    
+    return await prisma.note.findMany({
+      where: {
+        AND: whereConditions,
       },
       include: {
         tags: true,
@@ -109,28 +144,37 @@ export class NoteRepository {
     });
   }
 
-  async searchNotes(query: string, archived?: boolean): Promise<Note[]> {
-    return await prisma.note.findMany({
-      where: {
-        AND: [
-          archived !== undefined ? { isArchived: archived } : {},
+  async searchNotes(query: string, archived?: boolean, userId?: string): Promise<Note[]> {
+    const whereConditions: any[] = [
+      {
+        OR: [
           {
-            OR: [
-              {
-                title: {
-                  contains: query,
-                  mode: 'insensitive',
-                },
-              },
-              {
-                content: {
-                  contains: query,
-                  mode: 'insensitive',
-                },
-              },
-            ],
+            title: {
+              contains: query,
+              mode: 'insensitive',
+            },
+          },
+          {
+            content: {
+              contains: query,
+              mode: 'insensitive',
+            },
           },
         ],
+      },
+    ];
+    
+    if (archived !== undefined) {
+      whereConditions.push({ isArchived: archived });
+    }
+    
+    if (userId) {
+      whereConditions.push({ userId });
+    }
+    
+    return await prisma.note.findMany({
+      where: {
+        AND: whereConditions,
       },
       include: {
         tags: true,

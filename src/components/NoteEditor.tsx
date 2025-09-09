@@ -1,6 +1,7 @@
 import { useState, useEffect, memo } from 'react';
 import { TagSelector } from './TagSelector';
 import { MarkdownEditor } from './ui/MarkdownEditor';
+import { useAuth } from '../hooks/useAuth';
 import type { Note, CreateNoteRequest, UpdateNoteRequest, Tag } from '../services/api';
 
 interface NoteEditorProps {

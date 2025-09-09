@@ -1,4 +1,20 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+import { supabase } from '../lib/supabase';
+
+const API_BASE_URL = '/api';
+
+// Helper function to get auth headers
+async function getAuthHeaders(): Promise<HeadersInit> {
+  const { data: { session } } = await supabase.auth.getSession();
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+  };
+  
+  if (session?.access_token) {
+    headers['Authorization'] = `Bearer ${session.access_token}`;
+  }
+  
+  return headers;
+}
 
 export interface Note {
   id: string;
@@ -38,10 +54,11 @@ export interface UpdateTagRequest {
 
 class ApiService {
   private async request<T>(endpoint: string, options?: RequestInit): Promise<T> {
+    const headers = await getAuthHeaders();
     const url = `${API_BASE_URL}${endpoint}`;
     const response = await fetch(url, {
       headers: {
-        'Content-Type': 'application/json',
+        ...headers,
         ...options?.headers,
       },
       ...options,
@@ -67,11 +84,7 @@ class ApiService {
     return JSON.parse(text) as T;
   }
 
-  // Note endpoints
-  async getAllNotes(): Promise<Note[]> {
-    return this.request<Note[]>('/notes');
-  }
-
+  // Notes API
   async getActiveNotes(): Promise<Note[]> {
     return this.request<Note[]>('/notes');
   }
@@ -80,21 +93,17 @@ class ApiService {
     return this.request<Note[]>('/notes?archived=true');
   }
 
-  async getNoteById(id: string): Promise<Note> {
-    return this.request<Note>(`/notes/${id}`);
-  }
-
-  async createNote(data: CreateNoteRequest): Promise<Note> {
+  async createNote(note: CreateNoteRequest): Promise<Note> {
     return this.request<Note>('/notes', {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: JSON.stringify(note),
     });
   }
 
-  async updateNote(id: string, data: UpdateNoteRequest): Promise<Note> {
+  async updateNote(id: string, note: UpdateNoteRequest): Promise<Note> {
     return this.request<Note>(`/notes/${id}`, {
       method: 'PUT',
-      body: JSON.stringify(data),
+      body: JSON.stringify(note),
     });
   }
 
@@ -110,21 +119,13 @@ class ApiService {
     });
   }
 
-  async searchNotes(query: string, archived?: boolean): Promise<Note[]> {
-    const params = new URLSearchParams({ q: query });
-    if (archived !== undefined) {
-      params.append('archived', archived.toString());
-    }
-    return this.request<Note[]>(`/notes?${params}`);
+  async searchNotes(query: string, archived: boolean = false): Promise<Note[]> {
+    return this.request<Note[]>(`/notes?q=${encodeURIComponent(query)}&archived=${archived}`);
   }
 
-  async getNotesByTags(tagIds: string[], archived?: boolean): Promise<Note[]> {
-    const params = new URLSearchParams();
-    tagIds.forEach(id => params.append('tagIds', id));
-    if (archived !== undefined) {
-      params.append('archived', archived.toString());
-    }
-    return this.request<Note[]>(`/notes?${params}`);
+  async getNotesByTags(tagIds: string[], archived: boolean = false): Promise<Note[]> {
+    const tagIdsParam = tagIds.join(',');
+    return this.request<Note[]>(`/notes?tagIds=${encodeURIComponent(tagIdsParam)}&archived=${archived}`);
   }
 
   // Tag endpoints
@@ -157,4 +158,16 @@ class ApiService {
   }
 }
 
-export const apiService = new ApiService(); 
+export const apiService = new ApiService();
+
+// Legacy exports for backward compatibility
+export const notesApi = {
+  getAll: () => apiService.getActiveNotes(),
+  getArchived: () => apiService.getArchivedNotes(),
+  create: (note: CreateNoteRequest) => apiService.createNote(note),
+  update: (id: string, note: UpdateNoteRequest) => apiService.updateNote(id, note),
+  delete: (id: string) => apiService.deleteNote(id),
+  toggleArchive: (id: string) => apiService.toggleArchiveNote(id),
+  search: (query: string, archived?: boolean) => apiService.searchNotes(query, archived),
+  getByTags: (tagIds: string[], archived?: boolean) => apiService.getNotesByTags(tagIds, archived),
+}; 

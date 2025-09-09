@@ -1,7 +1,8 @@
 interface VercelRequest {
   method?: string;
   query: { [key: string]: string | string[] | undefined };
-  body: any;
+  body?: any;
+  headers?: { [key: string]: string | undefined };
 }
 
 interface VercelResponse {
@@ -13,14 +14,15 @@ interface VercelResponse {
 
 import { NoteService } from '../../lib/services/NoteService';
 import type { UpdateNoteRequest } from '../../lib/models/Note';
+import { authenticateUser, requireAuth } from '../../lib/middleware/auth';
 
 const noteService = new NoteService();
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Enable CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, PUT, DELETE, PATCH, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   
   if (req.method === 'OPTIONS') {
     res.status(200).end();
@@ -30,6 +32,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const { method, query } = req;
   const id = query.id as string;
 
+  // Authenticate user
+  const user = await authenticateUser(req.headers?.authorization as string);
+
   if (!id) {
     return res.status(400).json({ error: 'Note ID is required' });
   }
@@ -37,8 +42,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     switch (method) {
       case 'GET':
-        // GET /api/notes/[id]
-        const note = await noteService.getNoteById(id);
+        // GET /api/notes/[id] - requires authentication and ownership
+        const authenticatedUser = requireAuth(user);
+        const note = await noteService.getNoteById(id, authenticatedUser.id);
         if (!note) {
           return res.status(404).json({ error: 'Note not found' });
         }
@@ -47,15 +53,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       case 'PUT':
         // PUT /api/notes/[id] or PUT /api/notes/[id]?action=toggle-archive
         if (query.action === 'toggle-archive') {
-          const toggledNote = await noteService.toggleArchiveNote(id);
+          // PATCH /api/notes/[id]?action=toggle-archive
+          const patchAuthUser = requireAuth(user);
+          const toggledNote = await noteService.toggleArchiveNote(id, patchAuthUser.id);
           if (!toggledNote) {
             return res.status(404).json({ error: 'Note not found' });
           }
           return res.json(toggledNote);
         } else {
-          // Regular update
-          const updateData: UpdateNoteRequest = req.body;
-          const updatedNote = await noteService.updateNote(id, updateData);
+          // PUT /api/notes/[id] - requires authentication and ownership
+          const putAuthUser = requireAuth(user);
+          const putData: UpdateNoteRequest = req.body;
+          const updatedNote = await noteService.updateNote(id, putData, putAuthUser.id);
           if (!updatedNote) {
             return res.status(404).json({ error: 'Note not found' });
           }
@@ -63,9 +72,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
       case 'PATCH':
-        // PATCH /api/notes/[id]?action=toggle-archive
+        // PATCH /api/notes/[id] - requires authentication and ownership
+        const patchAuthUser = requireAuth(user);
         if (query.action === 'toggle-archive') {
-          const toggledNote = await noteService.toggleArchiveNote(id);
+          const toggledNote = await noteService.toggleArchiveNote(id, patchAuthUser.id);
           if (!toggledNote) {
             return res.status(404).json({ error: 'Note not found' });
           }
@@ -75,8 +85,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
       case 'DELETE':
-        // DELETE /api/notes/[id]
-        const success = await noteService.deleteNote(id);
+        // DELETE /api/notes/[id] - requires authentication and ownership
+        const deleteAuthUser = requireAuth(user);
+        const success = await noteService.deleteNote(id, deleteAuthUser.id);
         if (!success) {
           return res.status(404).json({ error: 'Note not found' });
         }

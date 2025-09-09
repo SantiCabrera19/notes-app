@@ -66,8 +66,14 @@ export default defineConfig({
               const { default: handler } = await import('./api/health.ts');
               await handler(req, res);
             } else if (url.startsWith('/notes')) {
-              const { default: handler } = await import('./api/notes.ts');
-              await handler(req, res);
+              // Check if this is a request for a specific note (has ID)
+              if (req.query.id) {
+                const { default: handler } = await import('./api/notes/[id].ts');
+                await handler(req, res);
+              } else {
+                const { default: handler } = await import('./api/notes.ts');
+                await handler(req, res);
+              }
             } else if (url.startsWith('/tags')) {
               const { default: handler } = await import('./api/tags.ts');
               await handler(req, res);

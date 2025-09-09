@@ -8,26 +8,26 @@ export class NoteService {
     this.noteRepository = new NoteRepository();
   }
 
-  async getAllNotes(): Promise<Note[]> {
-    return await this.noteRepository.findAll();
+  async getAllNotes(userId: string): Promise<Note[]> {
+    return await this.noteRepository.findAll(undefined, userId);
   }
 
-  async getActiveNotes(): Promise<Note[]> {
-    return await this.noteRepository.findAll(false);
+  async getActiveNotes(userId: string): Promise<Note[]> {
+    return await this.noteRepository.findAll(false, userId);
   }
 
-  async getArchivedNotes(): Promise<Note[]> {
-    return await this.noteRepository.findAll(true);
+  async getArchivedNotes(userId: string): Promise<Note[]> {
+    return await this.noteRepository.findAll(true, userId);
   }
 
-  async getNoteById(id: string): Promise<Note | null> {
+  async getNoteById(id: string, userId: string): Promise<Note | null> {
     if (!id) {
       throw new Error('Note ID is required');
     }
-    return await this.noteRepository.findById(id);
+    return await this.noteRepository.findById(id, userId);
   }
 
-  async createNote(data: CreateNoteRequest): Promise<Note> {
+  async createNote(data: CreateNoteRequest, userId: string): Promise<Note> {
     if (!data.title || !data.title.trim()) {
       throw new Error('Note title is required');
     }
@@ -36,10 +36,10 @@ export class NoteService {
       throw new Error('Note content is required');
     }
 
-    return await this.noteRepository.create(data);
+    return await this.noteRepository.create(data, userId);
   }
 
-  async updateNote(id: string, data: UpdateNoteRequest): Promise<Note | null> {
+  async updateNote(id: string, data: UpdateNoteRequest, userId: string): Promise<Note | null> {
     if (!id) {
       throw new Error('Note ID is required');
     }
@@ -52,38 +52,38 @@ export class NoteService {
       throw new Error('Note content cannot be empty');
     }
 
-    return await this.noteRepository.update(id, data);
+    return await this.noteRepository.update(id, data, userId);
   }
 
-  async deleteNote(id: string): Promise<boolean> {
+  async deleteNote(id: string, userId: string): Promise<boolean> {
     if (!id) {
       throw new Error('Note ID is required');
     }
 
-    return await this.noteRepository.delete(id);
+    return await this.noteRepository.delete(id, userId);
   }
 
-  async toggleArchiveNote(id: string): Promise<Note | null> {
+  async toggleArchiveNote(id: string, userId: string): Promise<Note | null> {
     if (!id) {
       throw new Error('Note ID is required');
     }
 
-    return await this.noteRepository.toggleArchive(id);
+    return await this.noteRepository.toggleArchive(id, userId);
   }
 
-  async getNotesByTags(tagIds: string[], archived?: boolean): Promise<Note[]> {
+  async getNotesByTags(tagIds: string[], userId: string, archived?: boolean): Promise<Note[]> {
     if (!tagIds || tagIds.length === 0) {
-      return archived ? await this.getArchivedNotes() : await this.getActiveNotes();
+      return archived ? await this.getArchivedNotes(userId) : await this.getActiveNotes(userId);
     }
 
-    return await this.noteRepository.findByTags(tagIds, archived);
+    return await this.noteRepository.findByTags(tagIds, archived, userId);
   }
 
-  async searchNotes(query: string, archived?: boolean): Promise<Note[]> {
+  async searchNotes(query: string, userId: string, archived?: boolean): Promise<Note[]> {
     if (!query || !query.trim()) {
-      return archived ? await this.getArchivedNotes() : await this.getActiveNotes();
+      return archived ? await this.getArchivedNotes(userId) : await this.getActiveNotes(userId);
     }
 
-    return await this.noteRepository.searchNotes(query.trim(), archived);
+    return await this.noteRepository.searchNotes(query.trim(), archived, userId);
   }
 }
