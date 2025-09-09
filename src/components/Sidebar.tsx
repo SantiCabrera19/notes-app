@@ -14,6 +14,7 @@ interface SidebarProps {
   onSearch?: (query: string) => void;
   loading?: boolean;
   onNotesReorder?: (notes: Note[]) => void;
+  disableReorder?: boolean;
 }
 
 export const Sidebar = memo<SidebarProps>(({
@@ -25,6 +26,7 @@ export const Sidebar = memo<SidebarProps>(({
   onSearch,
   loading = false,
   onNotesReorder,
+  disableReorder = false,
 }) => {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -242,6 +244,7 @@ export const Sidebar = memo<SidebarProps>(({
                 onNoteSelect={onNoteSelect}
                 onNotesReorder={onNotesReorder}
                 renderNote={renderNote}
+                disableReorder={disableReorder}
               />
             </motion.div>
           )}

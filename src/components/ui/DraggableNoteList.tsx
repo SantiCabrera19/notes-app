@@ -9,6 +9,7 @@ interface DraggableNoteListProps {
   onNoteSelect: (noteId: string) => void;
   onNotesReorder?: (notes: Note[]) => void;
   renderNote: (note: Note, index: number) => React.ReactNode;
+  disableReorder?: boolean;
 }
 
 export const DraggableNoteList: React.FC<DraggableNoteListProps> = ({
@@ -17,6 +18,7 @@ export const DraggableNoteList: React.FC<DraggableNoteListProps> = ({
   onNoteSelect,
   onNotesReorder,
   renderNote,
+  disableReorder = false,
 }) => {
   const [items, setItems] = useState(notes);
 
@@ -29,6 +31,24 @@ export const DraggableNoteList: React.FC<DraggableNoteListProps> = ({
     setItems(newOrder);
     onNotesReorder?.(newOrder);
   };
+
+  if (disableReorder) {
+    return (
+      <div className="space-y-3">
+        {items.map((note, index) => (
+          <div key={note.id} className="relative">
+            {/* Note Content (no drag handle) */}
+            <div
+              onClick={() => onNoteSelect(note.id)}
+              className="cursor-pointer"
+            >
+              {renderNote(note, index)}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
 
   return (
     <Reorder.Group
@@ -74,4 +94,4 @@ export const DraggableNoteList: React.FC<DraggableNoteListProps> = ({
       ))}
     </Reorder.Group>
   );
-}; 
+};

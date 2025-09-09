@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 import { Logo } from '../ui/Logo';
 import { AnimatedButton } from '../ui/AnimatedButton';
 import { Plus, Search as SearchIcon, FileText, Archive, Grid3X3, Menu } from 'lucide-react';
-import { Auth } from '../Auth';
 
 interface MobileHeaderProps {
   currentView: 'active' | 'archived' | 'all';
@@ -36,10 +35,8 @@ export const MobileHeader: React.FC<MobileHeaderProps> = ({
       <div className="px-4 py-3 flex items-center justify-between">
         <button onClick={onGoHome} className="flex items-center gap-2">
           <Logo className="w-6 h-6" />
-          <span className="text-white font-semibold">Notes App</span>
         </button>
         <div className="flex items-center gap-2">
-          <Auth />
           <button
             className="p-2 rounded-md bg-gray-800 text-gray-300"
             aria-label="Menu"

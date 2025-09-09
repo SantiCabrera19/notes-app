@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Sidebar } from './Sidebar';
 import { NoteEditor } from './NoteEditor';
@@ -102,6 +102,16 @@ export const AppContent = memo<AppContentProps>(({
   const currentNotes = getCurrentNotes(currentView, activeNotes, archivedNotes, notes);
   const selectedNote = findSelectedNote(selectedNoteId, notes, activeNotes, archivedNotes);
 
+  // Detect mobile viewport to adjust behavior (e.g., disable drag-reorder inline)
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)');
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener?.('change', update);
+    return () => mq.removeEventListener?.('change', update);
+  }, []);
+
   // Manejar guardado de notas
   const handleSaveNote = async (data: any) => {
     try {
@@ -151,6 +161,7 @@ export const AppContent = memo<AppContentProps>(({
             onSearch={onSearch}
             loading={loading}
             onNotesReorder={onNotesReorder}
+            disableReorder={isMobile}
           />
         )}
       </div>
@@ -272,6 +283,7 @@ export const AppContent = memo<AppContentProps>(({
                     onSearch={onSearch}
                     loading={loading}
                     onNotesReorder={onNotesReorder}
+                    disableReorder={false}
                   />
                 </div>
               </div>
