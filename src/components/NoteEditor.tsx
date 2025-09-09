@@ -1,7 +1,6 @@
 import { useState, useEffect, memo } from 'react';
 import { TagSelector } from './TagSelector';
 import { MarkdownEditor } from './ui/MarkdownEditor';
-import { useAuth } from '../hooks/useAuth';
 import type { Note, CreateNoteRequest, UpdateNoteRequest, Tag } from '../services/api';
 
 interface NoteEditorProps {
@@ -136,7 +135,10 @@ export const NoteEditor = memo<NoteEditorProps>(({
   };
 
   return (
-    <div className="h-full flex flex-col">
+    <>
+      {/* Mobile backdrop for sheet */}
+      <div className="md:hidden fixed inset-0 z-30 bg-black/50 backdrop-blur-sm" />
+      <div className="h-full md:static md:relative fixed inset-0 z-40 flex flex-col bg-gray-900 md:bg-transparent">
       {/* Header */}
       <div className="p-6 border-b border-gray-800 bg-gray-900">
                   <div className="flex items-center justify-between">
@@ -301,6 +303,7 @@ export const NoteEditor = memo<NoteEditorProps>(({
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 });

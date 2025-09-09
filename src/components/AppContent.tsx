@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Sidebar } from './Sidebar';
 import { NoteEditor } from './NoteEditor';
 import { NoteViewer } from './NoteViewer';
@@ -42,6 +43,9 @@ interface AppContentProps {
   onGoHome: () => void;
   onViewChange?: (view: 'active' | 'archived' | 'all') => void;
   onCreateNote?: () => void;
+  // Mobile sidebar overlay
+  mobileMenuOpen?: boolean;
+  onCloseMobileMenu?: () => void;
   onSearch: (query: string) => void;
   onNotesReorder: (notes: Note[]) => void;
   onCancelEdit: () => void;
@@ -85,6 +89,8 @@ export const AppContent = memo<AppContentProps>(({
   onGoHome,
   onViewChange,
   onCreateNote,
+  mobileMenuOpen,
+  onCloseMobileMenu,
   onSearch,
   onNotesReorder,
   onCancelEdit,
@@ -225,6 +231,54 @@ export const AppContent = memo<AppContentProps>(({
           onClick={onCreateNote || onGoHome}
         />
       </div>
+
+      {/* Mobile Sidebar Overlay */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm md:hidden"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={onCloseMobileMenu}
+            />
+            {/* Panel */}
+            <motion.div
+              className="fixed left-0 top-0 bottom-0 z-[70] w-[88vw] max-w-sm bg-gray-900 border-r border-gray-800 md:hidden"
+              initial={{ x: -320 }}
+              animate={{ x: 0 }}
+              exit={{ x: -320 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+            >
+              <div className="h-full flex flex-col">
+                <div className="p-3 border-b border-gray-800 flex items-center justify-between">
+                  <span className="text-sm text-gray-300">Your Notes</span>
+                  <button
+                    onClick={onCloseMobileMenu}
+                    className="px-2 py-1 text-sm text-gray-400 hover:text-white rounded"
+                  >
+                    Close
+                  </button>
+                </div>
+                <div className="flex-1 overflow-y-auto">
+                  <Sidebar
+                    notes={currentNotes}
+                    selectedNoteId={selectedNoteId}
+                    onNoteSelect={(id) => { onCloseMobileMenu?.(); onNoteSelect(id); }}
+                    view={currentView}
+                    searchQuery={searchQuery}
+                    onSearch={onSearch}
+                    loading={loading}
+                    onNotesReorder={onNotesReorder}
+                  />
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 });

@@ -1,6 +1,7 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Header } from './components/Header';
+import { MobileHeader } from './components/mobile/MobileHeader';
 import { AppContent } from './components/AppContent';
 import { AuthCallback } from './components/AuthCallback';
 import { AnimatedBackground } from './components/ui/AnimatedBackground';
@@ -12,6 +13,8 @@ import { useNotesManager } from './hooks/useNotesManager';
 import type { Note } from './services/api';
 
 function App() {
+  // Mobile sidebar menu state
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const appState = useAppState();
   const {
     currentView,
@@ -84,14 +87,26 @@ function App() {
         {/* Main App Route */}
         <Route path="/" element={
           <AnimatedBackground variant="gradient">
-            {/* Header */}
-            <Header
-              title="Notes App"
-              currentView={currentView}
-              onViewChange={handleViewChange}
-              onCreateNote={handleNewNote}
-              onGoHome={handleGoHome}
-            />
+            {/* Headers */}
+            <div className="hidden md:block">
+              <Header
+                title="Notes App"
+                currentView={currentView}
+                onViewChange={handleViewChange}
+                onCreateNote={handleNewNote}
+                onGoHome={handleGoHome}
+              />
+            </div>
+            <div className="md:hidden sticky top-0 z-50">
+              <MobileHeader
+                currentView={currentView}
+                onViewChange={handleViewChange}
+                onCreateNote={handleNewNote}
+                onSearch={handleSearch}
+                onGoHome={handleGoHome}
+                onOpenMenu={() => setMobileMenuOpen(true)}
+              />
+            </div>
 
             {/* Success Message */}
             <SuccessMessage 
@@ -131,6 +146,8 @@ function App() {
               onGoHome={handleGoHome}
               onViewChange={handleViewChange}
               onCreateNote={handleNewNote}
+              mobileMenuOpen={mobileMenuOpen}
+              onCloseMobileMenu={() => setMobileMenuOpen(false)}
               onSearch={handleSearch}
               onNotesReorder={handleNotesReorder}
               onCancelEdit={handleCancelEdit}
@@ -139,7 +156,9 @@ function App() {
               clearTagsError={clearTagsError}
             />
             {/* Footer */}
-            <Footer />
+            <div className="hidden md:block">
+              <Footer />
+            </div>
           </AnimatedBackground>
         } />
         
