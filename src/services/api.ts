@@ -85,6 +85,21 @@ class ApiService {
   }
 
   // Notes API
+  async getAllNotes(): Promise<Note[]> {
+    // Fetch active and archived in parallel and merge
+    const [active, archived] = await Promise.all([
+      this.request<Note[]>('/notes'),
+      this.request<Note[]>('/notes?archived=true'),
+    ]);
+    const all = [...(active || []), ...(archived || [])];
+    // Sort by updatedAt desc if available
+    return all.sort((a, b) => {
+      const ad = new Date(a.updatedAt).getTime();
+      const bd = new Date(b.updatedAt).getTime();
+      return bd - ad;
+    });
+  }
+
   async getActiveNotes(): Promise<Note[]> {
     return this.request<Note[]>('/notes');
   }
