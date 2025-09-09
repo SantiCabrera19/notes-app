@@ -8,6 +8,8 @@ import { ErrorMessage } from './ui/ErrorMessage';
 import { getCurrentNotes, findSelectedNote } from '../utils/noteUtils';
 import type { Note, Tag } from '../services/api';
 import type { ViewType } from '../hooks/useAppStateReducer';
+import { MobileNav } from './mobile/MobileNav';
+import { FAB } from './mobile/FAB';
 
 interface AppContentProps {
   // Estado
@@ -38,6 +40,8 @@ interface AppContentProps {
   onEditNote: () => void;
   onViewNote: (noteId: string) => void;
   onGoHome: () => void;
+  onViewChange?: (view: 'active' | 'archived' | 'all') => void;
+  onCreateNote?: () => void;
   onSearch: (query: string) => void;
   onNotesReorder: (notes: Note[]) => void;
   onCancelEdit: () => void;
@@ -79,6 +83,8 @@ export const AppContent = memo<AppContentProps>(({
   onEditNote,
   onViewNote,
   onGoHome,
+  onViewChange,
+  onCreateNote,
   onSearch,
   onNotesReorder,
   onCancelEdit,
@@ -206,6 +212,19 @@ export const AppContent = memo<AppContentProps>(({
           </>
         )}
       </main>
+
+      {/* Mobile-only controls: Bottom navigation and FAB */}
+      <div className="md:hidden">
+        <MobileNav
+          currentView={currentView}
+          onViewChange={onViewChange}
+          onGoHome={onGoHome}
+        />
+        <FAB
+          label="New Note"
+          onClick={onCreateNote || onGoHome}
+        />
+      </div>
     </div>
   );
 });

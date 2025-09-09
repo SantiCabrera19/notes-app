@@ -129,6 +129,8 @@ function App() {
               onEditNote={handleEditNote}
               onViewNote={handleViewNote}
               onGoHome={handleGoHome}
+              onViewChange={handleViewChange}
+              onCreateNote={handleNewNote}
               onSearch={handleSearch}
               onNotesReorder={handleNotesReorder}
               onCancelEdit={handleCancelEdit}
