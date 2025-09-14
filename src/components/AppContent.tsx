@@ -185,15 +185,22 @@ export const AppContent = memo<AppContentProps>(({
               />
             )}
 
-            {/* Welcome State - Only show on desktop when no dashboard */}
-            {!selectedNoteId && !isCreating && !showDashboard && (
-              <div className="hidden md:block">
-                <WelcomeScreen onCreateNote={onGoHome} />
-              </div>
+            {/* Welcome State - Only show on desktop when no other content */}
+            {!isMobile && !selectedNoteId && !isCreating && !isViewing && !showDashboard && (
+              <WelcomeScreen onCreateNote={onGoHome} />
             )}
 
-            {/* Dashboard - Always show on mobile, conditional on desktop */}
-            {(showDashboard || isMobile) && !selectedNoteId && !isCreating && !isViewing && (
+            {/* Dashboard - Always show on mobile when no other content */}
+            {isMobile && !selectedNoteId && !isCreating && !isViewing && (
+              <Dashboard 
+                notes={[...(activeNotes || []), ...(archivedNotes || [])]} 
+                tags={tags} 
+                loading={false}
+              />
+            )}
+
+            {/* Dashboard - Desktop only when explicitly requested */}
+            {!isMobile && showDashboard && !selectedNoteId && !isCreating && !isViewing && (
               <Dashboard 
                 notes={[...(activeNotes || []), ...(archivedNotes || [])]} 
                 tags={tags} 

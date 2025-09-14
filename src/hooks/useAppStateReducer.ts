@@ -34,7 +34,7 @@ const initialState: AppState = {
   searchQuery: '',
   selectedTagIds: [],
   showSuccessMessage: null,
-  showDashboard: true,
+  showDashboard: false,
 };
 
 function appStateReducer(state: AppState, action: AppAction): AppState {
@@ -43,7 +43,7 @@ function appStateReducer(state: AppState, action: AppAction): AppState {
       return {
         ...initialState,
         currentView: action.payload,
-        showDashboard: true,
+        showDashboard: false,
       };
 
     case 'SELECT_NOTE':
@@ -83,7 +83,7 @@ function appStateReducer(state: AppState, action: AppAction): AppState {
     case 'GO_HOME':
       return {
         ...state,
-        showDashboard: true,
+        showDashboard: false,
         selectedNoteId: undefined,
         isCreating: false,
         isViewing: false,
