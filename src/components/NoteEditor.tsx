@@ -229,8 +229,8 @@ export const NoteEditor = memo<NoteEditorProps>(({
             )}
           </div>
 
-          {/* Tags Selector - Hidden on mobile for cleaner UX */}
-          <div className="mb-6 hidden md:block">
+          {/* Tags Selector */}
+          <div className="mb-6">
             <label className="block text-sm font-medium text-gray-300 mb-2">
               Tags
             </label>
@@ -255,7 +255,7 @@ export const NoteEditor = memo<NoteEditorProps>(({
                 value={content}
                 onChange={setContent}
                 placeholder="Write your note content here... Use Markdown for formatting!"
-                className="h-[300px] md:h-[500px]"
+                className="h-[400px] md:h-[500px]"
               />
             </div>
             {errors.content && (
