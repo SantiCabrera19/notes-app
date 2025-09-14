@@ -44,3 +44,5 @@ export const NoteEditorActions = memo<NoteEditorActionsProps>(({
     </div>
   </div>
 ));
+
+NoteEditorActions.displayName = 'NoteEditorActions';

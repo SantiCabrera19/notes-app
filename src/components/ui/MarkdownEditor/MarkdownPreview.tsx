@@ -19,3 +19,5 @@ export const MarkdownPreview: React.FC<MarkdownPreviewProps> = ({
     <LazyMarkdownRenderer content={content} />
   </motion.div>
 );
+
+MarkdownPreview.displayName = 'MarkdownPreview';

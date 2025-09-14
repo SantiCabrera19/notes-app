@@ -66,3 +66,5 @@ export const NoteEditorForm = memo<NoteEditorFormProps>(({
     </div>
   </div>
 ));
+
+NoteEditorForm.displayName = 'NoteEditorForm';

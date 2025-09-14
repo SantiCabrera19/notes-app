@@ -87,3 +87,5 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({
     </div>
   );
 };
+
+MarkdownToolbar.displayName = 'MarkdownToolbar';

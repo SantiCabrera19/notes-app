@@ -36,3 +36,5 @@ export const MarkdownTextArea: React.FC<MarkdownTextAreaProps> = ({
     </motion.div>
   );
 };
+
+MarkdownTextArea.displayName = 'MarkdownTextArea';

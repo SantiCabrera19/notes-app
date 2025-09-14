@@ -76,3 +76,5 @@ export const NoteEditorHeader = memo<NoteEditorHeaderProps>(({
     </div>
   </div>
 ));
+
+NoteEditorHeader.displayName = 'NoteEditorHeader';
