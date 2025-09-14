@@ -229,8 +229,8 @@ export const NoteEditor = memo<NoteEditorProps>(({
             )}
           </div>
 
-          {/* Tags Selector */}
-          <div className="mb-6">
+          {/* Tags Selector - Hidden on mobile for cleaner UX */}
+          <div className="mb-6 hidden md:block">
             <label className="block text-sm font-medium text-gray-300 mb-2">
               Tags
             </label>
@@ -266,8 +266,9 @@ export const NoteEditor = memo<NoteEditorProps>(({
                 <span>{errors.content}</span>
               </p>
             )}
-            <div className="mt-2 text-xs text-gray-500">
-              {content.length} characters <span className="hidden md:inline">• Use toolbar for formatting</span>
+            <div className="mt-2 flex justify-between items-center text-xs text-gray-500">
+              <span>{content.length} characters <span className="hidden md:inline">• Use toolbar for formatting</span></span>
+              <span className="md:hidden text-blue-400">Tap Preview to see formatted text</span>
             </div>
           </div>
 

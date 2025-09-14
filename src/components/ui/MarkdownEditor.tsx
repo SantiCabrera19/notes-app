@@ -29,7 +29,7 @@ const ToolbarButton: React.FC<{
 }> = ({ icon, onClick, tooltip }) => (
   <motion.button
     onClick={onClick}
-    className="p-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded transition-colors"
+    className="p-1.5 md:p-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded transition-colors flex-shrink-0"
     whileHover={{ scale: 1.05 }}
     whileTap={{ scale: 0.95 }}
     title={tooltip}
@@ -45,6 +45,14 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
   className = "",
 }) => {
   const [showPreview, setShowPreview] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  React.useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const insertMarkdown = (before: string, after: string = "", placeholder: string = "text") => {
     const textarea = document.querySelector('textarea') as HTMLTextAreaElement;
@@ -124,13 +132,14 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
     <div className={`flex flex-col h-full ${className}`}>
       {/* Toolbar */}
       <motion.div 
-        className="flex items-center justify-between p-3 bg-gray-800 border-b border-gray-700 rounded-t-lg"
+        className="flex items-center justify-between p-2 md:p-3 bg-gray-800 border-b border-gray-700 rounded-t-lg"
         initial={{ y: -10, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.1 }}
       >
-        <div className="flex items-center space-x-1">
-          {toolbarActions.map((action, index) => (
+        <div className="flex items-center space-x-1 overflow-x-auto">
+          {/* Mobile: Show only essential tools */}
+          {(isMobile ? toolbarActions.slice(0, 4) : toolbarActions).map((action, index) => (
             <ToolbarButton
               key={index}
               icon={action.icon}
@@ -142,17 +151,18 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
         
         <AnimatedButton
           onClick={() => setShowPreview(!showPreview)}
-          variant="ghost"
+          variant={showPreview ? "primary" : "ghost"}
           size="sm"
           icon={showPreview ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
         >
-          {showPreview ? 'Edit' : 'Preview'}
+          <span className="hidden sm:inline">{showPreview ? 'Edit' : 'Preview'}</span>
         </AnimatedButton>
       </motion.div>
 
       {/* Editor/Preview Area */}
       <div className="flex-1 flex">
-        {!showPreview && (
+        {/* Split view on desktop, toggle on mobile */}
+        {!isMobile && !showPreview && (
           <motion.div 
             className="flex-1"
             initial={{ opacity: 0 }}
@@ -163,15 +173,66 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
               value={value}
               onChange={(e) => onChange(e.target.value)}
               placeholder={placeholder}
-              className="w-full h-[500px] p-4 bg-gray-900 text-white placeholder-gray-400 resize-none focus:outline-none focus:ring-0 border-0"
+              className="w-full h-full p-4 bg-gray-900 text-white placeholder-gray-400 resize-none focus:outline-none focus:ring-0 border-0"
               style={{ fontFamily: 'monospace' }}
             />
           </motion.div>
         )}
-        
-        {showPreview && (
+
+        {/* Mobile: Editor */}
+        {isMobile && !showPreview && (
           <motion.div 
-            className="flex-1 p-4 bg-gray-900 overflow-y-auto"
+            className="flex-1 flex flex-col"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <textarea
+              value={value}
+              onChange={(e) => onChange(e.target.value)}
+              placeholder={placeholder}
+              className="flex-1 p-3 bg-gray-900 text-white placeholder-gray-400 resize-none focus:outline-none focus:ring-0 border-0 text-sm"
+              style={{ fontFamily: 'system-ui' }}
+            />
+            {/* Live character count */}
+            <div className="px-3 py-2 bg-gray-800 text-xs text-gray-400 border-t border-gray-700">
+              {value.length} characters
+            </div>
+          </motion.div>
+        )}
+        
+        {/* Desktop: Split view when preview is on */}
+        {!isMobile && showPreview && (
+          <>
+            <motion.div 
+              className="flex-1 border-r border-gray-700"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <textarea
+                value={value}
+                onChange={(e) => onChange(e.target.value)}
+                placeholder={placeholder}
+                className="w-full h-full p-4 bg-gray-900 text-white placeholder-gray-400 resize-none focus:outline-none focus:ring-0 border-0"
+                style={{ fontFamily: 'monospace' }}
+              />
+            </motion.div>
+            <motion.div 
+              className="flex-1 p-4 bg-gray-850 overflow-y-auto"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+            >
+              <MarkdownPreview content={value} />
+            </motion.div>
+          </>
+        )}
+
+        {/* Mobile: Preview only */}
+        {isMobile && showPreview && (
+          <motion.div 
+            className="flex-1 p-3 bg-gray-850 overflow-y-auto"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -188,16 +249,26 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
 const MarkdownPreview: React.FC<{ content: string }> = ({ content }) => {
   if (!content.trim()) {
     return (
-      <div className="text-gray-400 italic">
-        Start writing to see the preview...
-      </div>
+      <motion.div 
+        className="flex flex-col items-center justify-center h-32 text-gray-400 italic"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        <Eye className="w-8 h-8 mb-2 text-gray-500" />
+        <p>Start writing to see the preview...</p>
+      </motion.div>
     );
   }
 
   return (
-    <div className="prose prose-invert prose-sm max-w-none">
+    <motion.div 
+      className="prose prose-invert prose-sm max-w-none"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.1 }}
+    >
       <MarkdownRenderer content={content} />
-    </div>
+    </motion.div>
   );
 };
 
