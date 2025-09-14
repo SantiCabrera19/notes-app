@@ -191,12 +191,13 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
               value={value}
               onChange={(e) => onChange(e.target.value)}
               placeholder={placeholder}
-              className="flex-1 p-3 bg-gray-900 text-white placeholder-gray-400 resize-none focus:outline-none focus:ring-0 border-0 text-sm"
-              style={{ fontFamily: 'system-ui' }}
+              className="flex-1 p-4 bg-gray-900 text-white placeholder-gray-400 resize-none focus:outline-none focus:ring-0 border-0 text-base leading-relaxed min-h-[60vh]"
+              style={{ fontFamily: 'system-ui', lineHeight: '1.6' }}
             />
-            {/* Live character count */}
-            <div className="px-3 py-2 bg-gray-800 text-xs text-gray-400 border-t border-gray-700">
-              {value.length} characters
+            {/* Live character count with better styling */}
+            <div className="px-4 py-3 bg-gray-800 text-sm text-gray-400 border-t border-gray-700 flex justify-between items-center">
+              <span>{value.length} characters</span>
+              <span className="text-blue-400 text-xs">Scroll for more space</span>
             </div>
           </motion.div>
         )}
@@ -232,7 +233,7 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
         {/* Mobile: Preview only */}
         {isMobile && showPreview && (
           <motion.div 
-            className="flex-1 p-3 bg-gray-850 overflow-y-auto"
+            className="flex-1 p-4 bg-gray-850 overflow-y-auto min-h-[60vh]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
