@@ -1,7 +1,9 @@
 import { useState, useEffect, memo } from 'react';
 import type { Note, CreateNoteRequest, UpdateNoteRequest, Tag } from '../services/api';
 import { handleError } from '../utils/errorHandler';
-import { NoteEditorHeader, NoteEditorForm, NoteEditorActions } from './NoteEditor/';
+import { NoteEditorHeader } from './NoteEditor/NoteEditorHeader';
+import { NoteEditorForm } from './NoteEditor/NoteEditorForm';
+import { NoteEditorActions } from './NoteEditor/NoteEditorActions';
 
 interface NoteEditorProps {
   note?: Note;

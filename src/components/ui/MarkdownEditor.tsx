@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { MarkdownToolbar, MarkdownPreview, MarkdownTextArea } from './MarkdownEditor/';
+import { MarkdownToolbar } from './MarkdownEditor/MarkdownToolbar';
+import { MarkdownPreview } from './MarkdownEditor/MarkdownPreview';
+import { MarkdownTextArea } from './MarkdownEditor/MarkdownTextArea';
 
 interface MarkdownEditorProps {
   value: string;
