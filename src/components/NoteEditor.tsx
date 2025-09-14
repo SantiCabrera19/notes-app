@@ -137,8 +137,8 @@ export const NoteEditor = memo<NoteEditorProps>(({
   return (
     <>
       {/* Mobile backdrop for sheet */}
-      <div className="md:hidden fixed inset-0 z-30 bg-black/50 backdrop-blur-sm" />
-      <div className="h-full md:static md:relative fixed inset-0 z-40 flex flex-col bg-gray-900 md:bg-transparent">
+      <div className="md:hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm" />
+      <div className="h-full md:static md:relative fixed inset-0 z-[60] flex flex-col bg-gray-900 md:bg-transparent">
       {/* Header */}
       <div className="p-6 border-b border-gray-800 bg-gray-900">
                   <div className="flex items-center justify-between">

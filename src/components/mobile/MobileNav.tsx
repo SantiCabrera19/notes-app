@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Home, FileText, Tag, User } from 'lucide-react';
+import { Home, FileText, Tag } from 'lucide-react';
 
 interface MobileNavProps {
   currentView?: 'active' | 'archived' | 'all';
@@ -14,7 +14,6 @@ export const MobileNav: React.FC<MobileNavProps> = ({ currentView = 'active', on
     { key: 'active', label: 'Notes', icon: FileText, onClick: () => onViewChange?.('active') },
     { key: 'all', label: 'All', icon: FileText, onClick: () => onViewChange?.('all') },
     { key: 'tags', label: 'Tags', icon: Tag, onClick: () => onViewChange?.('active') },
-    { key: 'profile', label: 'Me', icon: User, onClick: () => {} },
   ];
 
   return (
@@ -27,7 +26,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({ currentView = 'active', on
     >
       <div className="mx-auto max-w-3xl">
         <div className="mx-3 rounded-2xl border border-gray-800 bg-gray-900/80 backdrop-blur supports-[backdrop-filter]:bg-gray-900/60 shadow-xl">
-          <ul className="grid grid-cols-5 py-2">
+          <ul className="grid grid-cols-4 py-2">
             {items.map((item) => {
               const Icon = item.icon;
               const isActive = item.key === currentView || (item.key === 'home' && currentView === 'active');

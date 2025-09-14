@@ -1,4 +1,4 @@
-import { memo, useEffect, useState } from 'react';
+import { memo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Sidebar } from './Sidebar';
 import { NoteEditor } from './NoteEditor';
@@ -102,15 +102,6 @@ export const AppContent = memo<AppContentProps>(({
   const currentNotes = getCurrentNotes(currentView, activeNotes, archivedNotes, notes);
   const selectedNote = findSelectedNote(selectedNoteId, notes, activeNotes, archivedNotes);
 
-  // Detect mobile viewport to adjust behavior (e.g., disable drag-reorder inline)
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia('(max-width: 767px)');
-    const update = () => setIsMobile(mq.matches);
-    update();
-    mq.addEventListener?.('change', update);
-    return () => mq.removeEventListener?.('change', update);
-  }, []);
 
   // Manejar guardado de notas
   const handleSaveNote = async (data: any) => {
@@ -147,8 +138,8 @@ export const AppContent = memo<AppContentProps>(({
 
   return (
     <div className="flex flex-col md:flex-row min-h-[calc(100vh-64px)]">
-      {/* Sidebar */}
-      <div className="w-full md:w-80 md:flex-shrink-0 border-b md:border-b-0 md:border-r border-gray-800 max-h-[40vh] md:max-h-none overflow-auto md:overflow-visible">
+      {/* Sidebar - Hidden on mobile */}
+      <div className="hidden md:block w-80 flex-shrink-0 border-r border-gray-800">
         {loading ? (
           <SidebarSkeleton />
         ) : (
@@ -161,13 +152,13 @@ export const AppContent = memo<AppContentProps>(({
             onSearch={onSearch}
             loading={loading}
             onNotesReorder={onNotesReorder}
-            disableReorder={isMobile}
+            disableReorder={false}
           />
         )}
       </div>
 
       {/* Main Content Area */}
-      <main className="flex-1 bg-gray-900/50 backdrop-blur-sm overflow-auto scroll-smooth">
+      <main className="flex-1 bg-gray-900/50 backdrop-blur-sm overflow-auto scroll-smooth pb-20 md:pb-0">
         {loading ? (
           <DashboardSkeleton />
         ) : (

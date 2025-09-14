@@ -57,23 +57,11 @@ export const NoteViewer = memo<NoteViewerProps>(({
 
   return (
     <>
-      {/* Backdrop only on mobile when sheet is open */}
-      <div className="md:hidden fixed inset-0 z-30 bg-black/50 backdrop-blur-sm" />
-
-      <motion.div 
-        className="h-full md:static md:relative fixed inset-0 z-40 flex flex-col bg-gray-900 md:bg-gray-900/50 backdrop-blur-sm"
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        exit={{ opacity: 0, x: -20 }}
-        transition={{ duration: 0.3 }}
-      >
+      {/* Mobile backdrop for sheet */}
+      <div className="md:hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm" />
+      <div className="h-full md:static md:relative fixed inset-0 z-[60] flex flex-col bg-gray-900 md:bg-transparent">
         {/* Header */}
-        <motion.div 
-          className="p-6 border-b border-gray-800 bg-gray-900/80 backdrop-blur-sm"
-          initial={{ y: -20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.1 }}
-        >
+        <div className="p-6 border-b border-gray-800 bg-gray-900">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <AnimatedButton
@@ -130,7 +118,7 @@ export const NoteViewer = memo<NoteViewerProps>(({
               </AnimatedButton>
             </div>
           </div>
-        </motion.div>
+        </div>
 
         {/* Tags Section */}
         {note.tags && note.tags.length > 0 && (
@@ -207,7 +195,7 @@ export const NoteViewer = memo<NoteViewerProps>(({
             onDelete(note.id);
           }}
         />
-      </motion.div>
+      </div>
     </>
   );
 });

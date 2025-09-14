@@ -207,7 +207,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ notes, tags, loading = fal
       </motion.div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
         {stats.map((stat, _index) => (
           <StatCard
             key={stat.title}
