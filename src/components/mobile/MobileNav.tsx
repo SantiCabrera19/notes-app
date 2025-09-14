@@ -18,7 +18,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({ currentView = 'active', on
 
   return (
     <motion.nav 
-      className="fixed bottom-0 left-0 right-0 z-40 md:hidden"
+      className="fixed bottom-4 left-0 right-0 z-40 md:hidden"
       initial={{ y: 60, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ type: 'spring', stiffness: 400, damping: 30 }}

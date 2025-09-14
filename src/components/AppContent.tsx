@@ -193,7 +193,7 @@ export const AppContent = memo<AppContentProps>(({
             )}
 
             {/* Dashboard - Always show on mobile, conditional on desktop */}
-            {(showDashboard || isMobile) && (
+            {(showDashboard || isMobile) && !selectedNoteId && !isCreating && !isViewing && (
               <Dashboard 
                 notes={[...(activeNotes || []), ...(archivedNotes || [])]} 
                 tags={tags} 

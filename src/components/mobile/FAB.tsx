@@ -11,7 +11,7 @@ export const FAB: React.FC<FABProps> = ({ onClick, label = 'New' }) => {
   return (
     <motion.button
       onClick={onClick}
-      className="fixed bottom-[66px] right-5 z-50 md:hidden rounded-full bg-blue-600 text-white shadow-xl w-14 h-14 flex items-center justify-center border border-blue-500"
+      className="fixed bottom-[88px] right-4 z-50 md:hidden w-14 h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg flex items-center justify-center transition-colors border border-blue-500"
       initial={{ scale: 0.9, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
       whileHover={{ scale: 1.05 }}
