@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Sidebar } from './Sidebar';
 import { NoteEditor } from './NoteEditor';
@@ -98,6 +98,16 @@ export const AppContent = memo<AppContentProps>(({
   clearError,
   clearTagsError,
 }) => {
+  // Mobile detection state
+  const [isMobile, setIsMobile] = useState(false);
+  
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   // Obtener notas actuales y nota seleccionada
   const currentNotes = getCurrentNotes(currentView, activeNotes, archivedNotes, notes);
   const selectedNote = findSelectedNote(selectedNoteId, notes, activeNotes, archivedNotes);
@@ -138,7 +148,7 @@ export const AppContent = memo<AppContentProps>(({
 
   return (
     <div className="flex flex-col md:flex-row min-h-[calc(100vh-64px)]">
-      {/* Sidebar - Hidden on mobile */}
+      {/* Sidebar - Always hidden on mobile, regardless of auth state */}
       <div className="hidden md:block w-80 flex-shrink-0 border-r border-gray-800">
         {loading ? (
           <SidebarSkeleton />
@@ -175,13 +185,15 @@ export const AppContent = memo<AppContentProps>(({
               />
             )}
 
-            {/* Welcome State */}
+            {/* Welcome State - Only show on desktop when no dashboard */}
             {!selectedNoteId && !isCreating && !showDashboard && (
-              <WelcomeScreen onCreateNote={onGoHome} />
+              <div className="hidden md:block">
+                <WelcomeScreen onCreateNote={onGoHome} />
+              </div>
             )}
 
-            {/* Dashboard */}
-            {showDashboard && (
+            {/* Dashboard - Always show on mobile, conditional on desktop */}
+            {(showDashboard || isMobile) && (
               <Dashboard 
                 notes={[...(activeNotes || []), ...(archivedNotes || [])]} 
                 tags={tags} 
