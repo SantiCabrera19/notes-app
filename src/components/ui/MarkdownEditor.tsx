@@ -52,7 +52,7 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
 
 
   return (
-    <div className={`flex flex-col h-full bg-gray-900 ${className}`}>
+    <div className={`flex flex-col h-full bg-gray-800 border border-gray-700 rounded-lg overflow-hidden ${className}`}>
       <MarkdownToolbar
         onInsertMarkdown={insertMarkdown}
         showPreview={showPreview}
